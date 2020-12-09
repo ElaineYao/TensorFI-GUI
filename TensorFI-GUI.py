@@ -21,22 +21,42 @@ def generateYaml():
 #Labels
 # FIXME: How to align  'Parameters' with 'ScalarFaultType'
 paraTitlelabel = tk.Label(top, text="Parameters", font = ("Times New Roman", 10)).grid(row=0, column=0)
-# paraTitlelabel.pack(side=tk.LEFT)
 
-paralabel = tk.Label(top, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
+scalarLabel = tk.Label(top, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
                     .grid(row = 5, column = 0, padx = 10, pady = 25)
+tensorLabel = tk.Label(top, font = ("Times New Roman", 10), text="TensorFaultFaultType: ")\
+                    .grid(row = 5, column = 10, padx = 10, pady = 25)
+# TODO: How to realize this multi choice with numbers
+opsLabel = tk.Label(top, font = ("Times New Roman", 10), text="Ops: ")\
+                    .grid(row = 6, column = 0, padx = 10, pady = 25)
+# TODO: THe same with instance lable
+insLabel = tk.Label(top, font = ("Times New Roman", 10), text="Instances: ")\
+                    .grid(row = 6, column = 10, padx = 10, pady = 25)
+injectLabel = tk.Label(top, font = ("Times New Roman", 10), text="InjectMode: ")\
+                    .grid(row = 7, column = 0, padx = 10, pady = 25)
 
 # Combobox
-ScalarCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
-ScalarCombo.grid(row=5, column=1)
-ScalarCombo.current(0)
+scalarCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+scalarCombo.grid(row=5, column=5)
+scalarCombo.current(0)
 
-# # Button - Click to generate default.yaml file
-# btYaml = tk.Button(paraFrame3, font = ("Times New Roman", 10),text="Generate", command=generateYaml)
-# btYaml.pack(side=tk.RIGHT)
+tensorCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+tensorCombo.grid(row=5, column=15)
+tensorCombo.current(4)
+# TODO: How to realize this multi choice with numbers
+opsBox = tk.Spinbox(top, from_=0, to=1).grid(row=6, column=5)
 
+# TODO: THe same with instance lable
+opsCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+opsCombo.grid(row=6, column=15)
+opsCombo.current(4)
 
+injectCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['errorRate', 'dynamicInstance', 'oneFaultPerRun'])
+injectCombo.grid(row=7, column=5)
+injectCombo.current(0)
 
+# Button - Click to generate default.yaml file
+btYaml = tk.Button(top, font = ("Times New Roman", 10),text="Generate", command=generateYaml).grid(row=7, column=10)
 
 
 top.mainloop()
