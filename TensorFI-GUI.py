@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*
+
+# TODO: Package this GUI
+import tkinter.filedialog
 import Tkinter as tk
 import ttk
 import yaml
+import insertCode as inCd
+import logging
+import os
 
 top = tk.Tk()
 top.title('TensorFI')
-top.geometry('800x350')
+top.geometry('1000x800')
 
 # Global variable
 opsList = []
@@ -14,7 +20,6 @@ insList = []
 # Code to add widgets
 
 # Generate default.yaml file
-# FIXME : try to realize generating the file before closing the window
 def generateYaml():
     seed = seedEntry.get()
     scalarFaultType = scalarCombo.get()
@@ -44,7 +49,6 @@ def generateYaml():
     geneLabel1.grid(row=9, column=20)
     geneLabel1.after(1000, geneLabel1.destroy)
 
-# TODO: When click the button, a message will say "Successfully added!" and then restore the value
 def addOp():
     opsEle = opsCombo.get() + ' = ' + opsEntry.get()
     opsList.append(opsEle)
@@ -59,9 +63,10 @@ def addIns():
     insLabel1.grid(row=6, column=25)
     insLabel1.after(1000, insLabel1.destroy)
 
-
+#--------------
+# Parameters Part
 #Labels
-# FIXME: How to align  'Parameters' with 'ScalarFaultType'
+# FIXME: How to align  'Parameters' with 'ScalarFaultType' - Beautify the GUI
 paraTitlelabel = tk.Label(top, text="Parameters", font = ("Times New Roman", 10)).grid(row=0, column=0)
 
 scalarLabel = tk.Label(top, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
@@ -130,6 +135,63 @@ insButt = tk.Button(top, font = ("Times New Roman", 10),text="Add instance", com
 insButt.grid(row=7, column=20)
 geneButt = tk.Button(top, font = ("Times New Roman", 10),text="Generate", command=generateYaml).grid(row=9, column=15)
 
+#------------------------
+# Fault injection
 
+# BrowseFiles
+def browseFiles():
+    filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
+                                          title="Select a File",
+                                          filetypes=(("Python files",
+                                                      "*.py*"),))
+    # print(filename)
+    # fileEntry = tk.Entry(top,text="File opened:"+filename,bd=3).grid(row=11, column=5)
+    if filename != '':
+        fileButt.configure(text=filename)
+
+#TODO: Add exceptions
+def injectFaults():
+    filename = fileButt.cget('text')
+    parse_src_import = inCd.addImport(filename)
+    loglValue = eval(loglEntry.get())
+
+    inCd.addFi(parse_src_import, confEntry.get(), logdEntry.get(), loglValue, disEntry.get(), nameEntry.get(), fipEntry.get())
+
+
+# Label
+fiTitleLabel = tk.Label(top, text="Fault injection", font = ("Times New Roman", 10)).grid(row=10, column=0, padx = 10, pady = 25)
+confLabel = tk.Label(top, text="configFileName:", font = ("Times New Roman", 10)).grid(row=11, column=10, padx = 10, pady = 25)
+logdLabel = tk.Label(top, text="logDir:", font = ("Times New Roman", 10)).grid(row=12, column=0, padx = 10, pady = 25)
+loglLabel = tk.Label(top, text="logLevel:", font = ("Times New Roman", 10)).grid(row=12, column=10, padx = 10, pady = 25)
+disLabel = tk.Label(top, text="disableInjections:", font = ("Times New Roman", 10)).grid(row=13, column=0, padx = 10, pady = 25)
+namelabel = tk.Label(top, text="name:", font = ("Times New Roman", 10)).grid(row=13, column=10, padx = 10, pady = 25)
+fiplabel = tk.Label(top, text="fiPrefix:", font = ("Times New Roman", 10)).grid(row=14, column=0, padx = 10, pady = 25)
+
+# Entry
+confEntry = tk.Entry(top,bd=3)
+confEntry.grid(row=11, column=15)
+confEntry.focus()
+logdEntry = tk.Entry(top,bd=3)
+logdEntry.grid(row=12, column=5)
+logdEntry.focus()
+loglEntry = tk.Entry(top,bd=3)
+loglEntry.grid(row=12, column=15)
+loglEntry.focus()
+disEntry = tk.Entry(top,bd=3)
+disEntry.grid(row=13, column=5)
+disEntry.focus()
+nameEntry = tk.Entry(top,bd=3)
+nameEntry.grid(row=13, column=15)
+nameEntry.focus()
+fipEntry = tk.Entry(top,bd=3)
+fipEntry.grid(row=14, column=5)
+fipEntry.focus()
+
+# Button
+fileButt = tk.Button(top, font = ("Times New Roman", 10),text="Select file", command=browseFiles)
+fileButt.grid(row=11, column=0)
+fiButt = tk.Button(top, font = ("Times New Roman", 10),text="Inject faults", command=injectFaults)
+fiButt.grid(row=14, column=15)
+#
 top.mainloop()
 
