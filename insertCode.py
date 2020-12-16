@@ -16,11 +16,12 @@ def addImport(fPath):
             importBody = ast.Import(aliaList)
             parse_src.body.insert(i, importBody)
             break
-
+    ast.fix_missing_locations(parse_src)
     # print(ast.dump(parse_src))
     # print(astor.to_source(parse_src))
     return parse_src
 
+# FIXME: There must be only one session in the python code, try to find out other logics.
 
 def addFi(parse_src, # Source file path
           configFileName="confFiles/default.yaml",  # Config file for reading fault configuration
@@ -30,6 +31,9 @@ def addFi(parse_src, # Source file path
           name="NoName",  # The name of the injector, used in statistics and logging
           fiPrefix="fi_"):  # Prefix to attach to each node inserted for fault injection
 
+    # org_parse = parse_src
+    # print(ast.dump(ast.parse(org_parse)))
+
     s = 'tf.Session' # This is the session from tensorFlow
     i=0 # Index in body node
     j=0 # Index in with node
@@ -38,7 +42,7 @@ def addFi(parse_src, # Source file path
         i = i+1
         # Find 'with tf.Session as sess', instead of other 'with' expressions
         if isinstance(node, ast.With) and node.context_expr.func.attr == 'Session':
-            s = node.body[0].value.func.value.id
+            s = node.optional_vars.id
             break
 
     withNode = parse_src.body[i-1]
@@ -71,11 +75,16 @@ def addFi(parse_src, # Source file path
     tiBody = ast.Assign(fiNameList, tiCall)
 
     withNode.body.insert(j, tiBody)
+    ast.fix_missing_locations(parse_src)
 
-    # print(ast.dump(ast.parse(source1)))
+    # print(ast.dump(ast.parse(org_parse)))
     print(astor.to_source(parse_src))
+    return parse_src
 
 
 if __name__ == '__main__':
-    # addImport('astTest.py')
-    addFi('sample.py', 'default.yaml', "faultLogs/", logging.DEBUG, 'False', 'convolutional', 'fi_')
+    parse_src_import=addImport('lenet-mnist-no-FI.py')
+    parse_src_fi = addFi(parse_src_import,  'testGen.yaml', "faultLogs/", logging.DEBUG, 'False', 'convolutional', 'fi_')
+    # Execute the parsed code
+    # parse_src_import = ast.parse(open('sample.py').read())
+    exec (compile(parse_src_import, filename="<ast>", mode="exec"))
