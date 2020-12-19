@@ -87,4 +87,4 @@ if __name__ == '__main__':
     parse_src_fi = addFi(parse_src_import,  'testGen.yaml', "faultLogs/", logging.DEBUG, 'False', 'convolutional', 'fi_')
     # Execute the parsed code
     # parse_src_import = ast.parse(open('sample.py').read())
-    exec (compile(parse_src_import, filename="<ast>", mode="exec"))
+    exec (compile(parse_src_fi, filename="<ast>", mode="exec"))
