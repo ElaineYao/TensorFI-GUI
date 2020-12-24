@@ -74,13 +74,17 @@ def refresh( ):
     if choice == 'errorRate':
         opsCombo.configure(state="normal")
         opsEntry.config(state='normal')
+        opButt.config(state='normal')
         insCombo.configure(state="disabled")
         insEntry.config(state='disabled')
+        insButt.config(state='disabled')
     else:
         opsCombo.configure(state="disabled")
         opsEntry.config(state='disabled')
+        opButt.config(state='disabled')
         insCombo.config(state='normal')
         insEntry.config(state='normal')
+        insButt.config(state='normal')
 
 #--------------
 # Parameters Part
@@ -159,45 +163,53 @@ skipEntry.focus()
 # Button - Click to generate default.yaml file
 opButt = tk.Button(top, font = ("Times New Roman", 10),text="Add operation", command=addOp)
 opButt.grid(row=7, column=20)
-insButt = tk.Button(top, font = ("Times New Roman", 10),text="Add instance", command=addIns)
+insButt = tk.Button(top, font = ("Times New Roman", 10),text="Add instance", command=addIns, state="disabled")
 insButt.grid(row=8, column=20)
 geneButt = tk.Button(top, font = ("Times New Roman", 10),text="Generate", command=generateYaml).grid(row=9, column=20)
 
 #------------------------
 # Fault injection
-
+emptyTuple = ()
 # BrowseFiles
 def browseFiles():
     filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
                                           title="Select a File",
                                           filetypes=(("Python files",
                                                       "*.py*"),))
-    # print(filename)
-    if filename != '':
-        fileButt.configure(text=filename)
+
+    if filename == emptyTuple:
+        fileButt.configure(text="Select file")
+    else: fileButt.configure(text=filename)
 
 def browseConfFiles():
     filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
                                                   title="Select a File",
                                                   filetypes=(("YAML files",
                                                               "*.yaml*"),))
-    if filename != '':
-        logdButt.configure(text=filename)
+    if filename == emptyTuple:
+        fileConfButt.configure(text="Select YAML file")
+    else: fileConfButt.configure(text=filename)
 
 def browseLogDir():
     dirname = tkinter.filedialog.askdirectory()
-    if dirname != '':
-        logdButt.configure(text=dirname)
+    if dirname == emptyTuple:
+        logdButt.configure(text="Select log directory")
+    else: logdButt.configure(text=dirname)
+
 
 #TODO: Add exceptions
 def injectFaults():
     filename = fileButt.cget('text')
     parse_src_import = inCd.addImport(filename)
     loglValue = eval(loglCombo.get())
+    if modeCombo.get()=='Run':
+        loglValue = 0
 
     parse_src_fi = inCd.addFi(parse_src_import, fileConfButt.cget('text'), logdButt.cget('text'), loglValue, disCombo.get(), nameEntry.get(), fipEntry.get())
     # Execute the parsed code
-    exec(compile(parse_src_fi, filename="<ast>", mode="exec"))
+    global_env = {}
+    local_env = {}
+    exec(compile(parse_src_fi, filename="<ast>", mode="exec"), global_env, local_env)
 
 #-------
 # Callback function
@@ -265,7 +277,7 @@ fileButt = tk.Button(top, font = ("Times New Roman", 10),text="Select file", com
 fileButt.grid(row=11, column=5)
 fileConfButt = tk.Button(top, font = ("Times New Roman", 10),text="Select YAML file", command=browseConfFiles)
 fileConfButt.grid(row=11, column=15)
-logdButt = tk.Button(top, font = ("Times New Roman", 10),text="Select log directory ", command=browseLogDir)
+logdButt = tk.Button(top, font = ("Times New Roman", 10),text="Select log directory", command=browseLogDir)
 logdButt.grid(row=12, column=5)
 fiButt = tk.Button(top, font = ("Times New Roman", 10),text="Inject faults", command=injectFaults)
 fiButt.grid(row=13, column=20)
