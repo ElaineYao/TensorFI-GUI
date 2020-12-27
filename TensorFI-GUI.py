@@ -209,7 +209,7 @@ def injectFaults():
     # Execute the parsed code
     global_env = {}
     local_env = {}
-    exec(compile(parse_src_fi, filename="<ast>", mode="exec"), global_env, local_env)
+    exec(compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
 
 #-------
 # Callback function
