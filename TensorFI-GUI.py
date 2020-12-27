@@ -148,17 +148,14 @@ opsEntry.grid(row=7, column = 15)
 opsEntry.focus()
 insEntry = tk.Entry(top, bd=5, state="disabled")
 insEntry.grid(row=8, column = 15)
-insEntry.focus()
 seedText = tk.StringVar()
 seedEntry = tk.Entry(top,bd=3,textvariable=seedText)
 seedEntry.grid(row=9, column=5)
 seedText.set(100000)
-seedEntry.focus()
 skipText = tk.StringVar()
 skipEntry = tk.Entry(top,bd=3,textvariable=skipText)
 skipEntry.grid(row=9, column=15)
 skipText.set(1)
-skipEntry.focus()
 
 # Button - Click to generate default.yaml file
 opButt = tk.Button(top, font = ("Times New Roman", 10),text="Add operation", command=addOp)
@@ -207,8 +204,6 @@ def injectFaults():
 
     parse_src_fi = inCd.addFi(parse_src_import, fileConfButt.cget('text'), logdButt.cget('text'), loglValue, disCombo.get(), nameEntry.get(), fipEntry.get())
     # Execute the parsed code
-    global_env = {}
-    local_env = {}
     exec(compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
 
 #-------
@@ -267,10 +262,8 @@ loglCombo.current(0)
 # Entry
 nameEntry = tk.Entry(top,bd=3)
 # nameEntry.grid(row=14, column=5)
-nameEntry.focus()
 fipEntry = tk.Entry(top,bd=3)
 # fipEntry.grid(row=14, column=15)
-fipEntry.focus()
 
 # Button
 fileButt = tk.Button(top, font = ("Times New Roman", 10),text="Select file", command=browseFiles)
@@ -284,23 +277,46 @@ fiButt.grid(row=13, column=20)
 
 # -------------------------------
 # Statistics
+
+# Generate feed_dict
+Dict = {}
+def addDict():
+    key = feedKeyEntry.get()
+    value = feedValEntry.get()
+    Dict[key] = value
+    feedLabel1 = tk.Label(top, text='Successfully added!')
+    feedLabel1.grid(row=17, column=25)
+    feedLabel1.after(1000, feedLabel1.destroy)
+
+def printt():
+    print(Dict)
+
 # Label
 staTitleLabel = tk.Label(top, text="Statistics", font = ("Times New Roman", 10)).grid(row=15, column=0, padx = 10, pady = 25)
-finumLabel = tk.Label(top, text="Number of injections: ", font = ("Times New Roman", 10)).grid(row=16, column=0, padx = 10, pady = 25)
+corrPreLabel = tk.Label(top, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=16, column=0, padx = 10, pady = 25)
+feedKeyLabel = tk.Label(top, text="Feed key: ", font = ("Times New Roman", 10))
+feedKeyLabel.grid(row=17, column=0, padx = 10, pady = 25)
+feedValLabel = tk.Label(top, text="Feed value: ", font = ("Times New Roman", 10))
+feedValLabel.grid(row=17, column=10, padx = 10, pady = 25)
+
 
 # Entry
-finumEntry = tk.Entry(top,bd=3)
-finumEntry.grid(row=16, column=5)
-finumEntry.focus()
+correPreEntry = tk.Entry(top,bd=3)
+correPreEntry.grid(row=16, column=5)
+feedKeyEntry = tk.Entry(top,bd=3)
+feedKeyEntry.grid(row=17, column=5)
+feedValEntry = tk.Entry(top,bd=3)
+feedValEntry.grid(row=17, column=15)
+
+
+#
 
 # Button
-# Button is only available to certain InjectMode
-# Bit flip/Random element
-sdcvButt = tk.Button(top, font = ("Times New Roman", 10),text="Figure: SDC rates vs FI error rate", command=browseFiles)
-sdcvButt.grid(row=17, column=0)
-# One fault per run/ Dynamic instance
-sdcoButt = tk.Button(top, font = ("Times New Roman", 10),text="Figure: SDC rates unber single bit-flip faults", command=browseFiles)
-sdcoButt.grid(row=17, column=15)
+feedDicButt = tk.Button(top, font = ("Times New Roman", 10),text="Add feed Dictionary", command=addDict)
+feedDicButt.grid(row=17, column=20)
+feeButt = tk.Button(top, font = ("Times New Roman", 10),text="Print", command=printt)
+feeButt.grid(row=18, column=0)
+
 
 
 
