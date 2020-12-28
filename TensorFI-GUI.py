@@ -10,9 +10,24 @@ import logging
 import os
 
 
-top = tk.Tk()
-top.title('TensorFI')
-top.geometry('1250x850')
+root = tk.Tk()
+root.title('TensorFI')
+root.geometry('850x700')
+
+main_frame = tk.Frame(root)
+main_frame.pack(fill=tk.BOTH, expand=1)
+
+my_canvas = tk.Canvas(main_frame)
+my_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+my_scrollbar = ttk.Scrollbar(main_frame, orient=tk.VERTICAL, command=my_canvas.yview)
+my_scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
+
+my_canvas.configure(yscrollcommand=my_scrollbar.set)
+my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion= my_canvas.bbox("all")))
+
+second_frame = tk.Frame(my_canvas)
+my_canvas.create_window((0,0), window=second_frame, anchor='nw')
 
 # Global variable
 opsList = []
@@ -45,21 +60,21 @@ def generateYaml():
     with open('testGen.yaml', 'w') as f:
         data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
 
-    geneLabel1 = tk.Label(top, text='Successfully generated!')
+    geneLabel1 = tk.Label(second_frame, text='Successfully generated!')
     geneLabel1.grid(row=9, column=20)
     geneLabel1.after(1000, geneLabel1.destroy)
 
 def addOp():
     opsEle = opsCombo.get() + ' = ' + opsEntry.get()
     opsList.append(opsEle)
-    opsLabel1 = tk.Label(top, text='Successfully added!')
+    opsLabel1 = tk.Label(second_frame, text='Successfully added!')
     opsLabel1.grid(row=6, column=25)
     opsLabel1.after(1000, opsLabel1.destroy)
 
 def addIns():
     insEle = insCombo.get() + ' = ' + insEntry.get()
     insList.append(insEle)
-    insLabel1 = tk.Label(top, text='Successfully added!')
+    insLabel1 = tk.Label(second_frame, text='Successfully added!')
     insLabel1.grid(row=6, column=25)
     insLabel1.after(1000, insLabel1.destroy)
 
@@ -90,51 +105,51 @@ def refresh( ):
 # Parameters Part
 #Labels
 # FIXME: How to align  'Parameters' with 'ScalarFaultType' - Beautify the GUI
-paraTitlelabel = tk.Label(top, text="YAML File Parameters", font = ("Times New Roman", 10)).grid(row=0, column=0)
+paraTitlelabel = tk.Label(second_frame, text="YAML File Parameters", font = ("Times New Roman", 10)).grid(row=0, column=0)
 
 
-injectLabel = tk.Label(top, font = ("Times New Roman", 10), text="InjectMode: ")\
+injectLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="InjectMode: ")\
                     .grid(row = 5, column = 0, padx = 10, pady = 25)
-scalarLabel = tk.Label(top, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
+scalarLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
                     .grid(row = 6, column = 0, padx = 10, pady = 25)
-tensorLabel = tk.Label(top, font = ("Times New Roman", 10), text="TensorFaultType: ")\
+tensorLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="TensorFaultType: ")\
                     .grid(row = 6, column = 10, padx = 10, pady = 25)
-opsLabel = tk.Label(top, font = ("Times New Roman", 10), text="Ops: ")\
+opsLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Ops: ")\
                     .grid(row = 7, column = 0, padx = 10, pady = 25)
-ProbLabel = tk.Label(top, font = ("Times New Roman", 10), text="Probability: ")\
+ProbLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Probability: ")\
                     .grid(row = 7, column = 10, padx = 10, pady = 25)
-insLabel = tk.Label(top, font = ("Times New Roman", 10), text="Instances: ")\
+insLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Instances: ")\
                     .grid(row = 8, column = 0, padx = 10, pady = 25)
-numLabel = tk.Label(top, font = ("Times New Roman", 10), text="Number: ")\
+numLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Number: ")\
                     .grid(row = 8, column = 10, padx = 10, pady = 25)
-seedLabel = tk.Label(top, font = ("Times New Roman", 10), text="Seed: ")\
+seedLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Seed: ")\
                     .grid(row = 9, column = 0, padx = 10, pady = 25)
-skipLabel = tk.Label(top, font = ("Times New Roman", 10), text="SkipCount: ")\
+skipLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="SkipCount: ")\
                     .grid(row = 9, column = 10, padx = 10, pady = 25)
 
 # Combobox
 choiceVar = tk.StringVar()
-injectCombo = ttk.Combobox(top, font = ("Times New Roman", 10), textvariable=choiceVar, values=['errorRate', 'dynamicInstance', 'oneFaultPerRun'])
+injectCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=choiceVar, values=['errorRate', 'dynamicInstance', 'oneFaultPerRun'])
 injectCombo.grid(row=5, column=5)
 injectCombo.current(0)
 choiceVar.trace("w", on_trace_choice)
 
-scalarCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+scalarCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
 scalarCombo.grid(row=6, column=5)
 scalarCombo.current(0)
 
-tensorCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+tensorCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
 tensorCombo.grid(row=6, column=15)
 tensorCombo.current(4)
 
-opsCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
+opsCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
                                                                         'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
                                                                         'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
                                                                         'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'])
 opsCombo.grid(row=7, column=5)
 opsCombo.current(0)
 
-insCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
+insCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
                                                                         'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
                                                                         'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
                                                                         'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'], state="disabled")
@@ -143,26 +158,26 @@ insCombo.current(0)
 
 
 # Entry - Enter the value
-opsEntry = tk.Entry(top, bd=5)
+opsEntry = tk.Entry(second_frame, bd=5)
 opsEntry.grid(row=7, column = 15)
 opsEntry.focus()
-insEntry = tk.Entry(top, bd=5, state="disabled")
+insEntry = tk.Entry(second_frame, bd=5, state="disabled")
 insEntry.grid(row=8, column = 15)
 seedText = tk.StringVar()
-seedEntry = tk.Entry(top,bd=3,textvariable=seedText)
+seedEntry = tk.Entry(second_frame,bd=3,textvariable=seedText)
 seedEntry.grid(row=9, column=5)
 seedText.set(100000)
 skipText = tk.StringVar()
-skipEntry = tk.Entry(top,bd=3,textvariable=skipText)
+skipEntry = tk.Entry(second_frame,bd=3,textvariable=skipText)
 skipEntry.grid(row=9, column=15)
 skipText.set(1)
 
 # Button - Click to generate default.yaml file
-opButt = tk.Button(top, font = ("Times New Roman", 10),text="Add operation", command=addOp)
+opButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add operation", command=addOp)
 opButt.grid(row=7, column=20)
-insButt = tk.Button(top, font = ("Times New Roman", 10),text="Add instance", command=addIns, state="disabled")
+insButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add instance", command=addIns, state="disabled")
 insButt.grid(row=8, column=20)
-geneButt = tk.Button(top, font = ("Times New Roman", 10),text="Generate", command=generateYaml).grid(row=9, column=20)
+geneButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Generate", command=generateYaml).grid(row=9, column=20)
 
 #------------------------
 # Fault injection
@@ -229,50 +244,50 @@ def refresh_mode( ):
 
 
 # Label
-fiTitleLabel = tk.Label(top, text="Fault injection", font = ("Times New Roman", 10)).grid(row=10, column=0, padx = 10, pady = 25)
-sourLabel = tk.Label(top, text="Source file: ", font = ("Times New Roman", 10)).grid(row=11, column=0, padx = 10, pady = 25)
-confLabel = tk.Label(top, text="configFileName:", font = ("Times New Roman", 10)).grid(row=11, column=10, padx = 10, pady = 25)
-logdLabel = tk.Label(top, text="logDir:", font = ("Times New Roman", 10)).grid(row=12, column=0, padx = 10, pady = 25)
-disLabel = tk.Label(top, text="disableInjections:", font = ("Times New Roman", 10)).grid(row=12, column=10, padx = 10, pady = 25)
-modeLabel = tk.Label(top, text="Mode:", font = ("Times New Roman", 10)).grid(row=13, column=0, padx = 10, pady = 25)
+fiTitleLabel = tk.Label(second_frame, text="Fault injection", font = ("Times New Roman", 10)).grid(row=10, column=0, padx = 10, pady = 25)
+sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row=11, column=0, padx = 10, pady = 25)
+confLabel = tk.Label(second_frame, text="configFileName:", font = ("Times New Roman", 10)).grid(row=11, column=10, padx = 10, pady = 25)
+logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10)).grid(row=12, column=0, padx = 10, pady = 25)
+disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10)).grid(row=12, column=10, padx = 10, pady = 25)
+modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=13, column=0, padx = 10, pady = 25)
 # Debugging mode
-loglLabel = tk.Label(top, text="logLevel:", font = ("Times New Roman", 10))
+loglLabel = tk.Label(second_frame, text="logLevel:", font = ("Times New Roman", 10))
 # loglLabel.grid(row=13, column=10, padx = 10, pady = 25)
-namelabel = tk.Label(top, text="name:", font = ("Times New Roman", 10))
+namelabel = tk.Label(second_frame, text="name:", font = ("Times New Roman", 10))
 # namelabel.grid(row=14, column=0, padx = 10, pady = 25)
-fiplabel = tk.Label(top, text="fiPrefix:", font = ("Times New Roman", 10))
+fiplabel = tk.Label(second_frame, text="fiPrefix:", font = ("Times New Roman", 10))
 # fiplabel.grid(row=14, column=10, padx = 10, pady = 25)
 
 # Combobox
-disCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=['False', 'True'])
+disCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['False', 'True'])
 disCombo.grid(row=12, column=15)
 disCombo.current(0)
 
 modeVar = tk.StringVar()
-modeCombo = ttk.Combobox(top, font = ("Times New Roman", 10), textvariable=modeVar, values=['Run', 'Debug'])
+modeCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=modeVar, values=['Run', 'Debug'])
 modeCombo.grid(row=13, column=5)
 modeCombo.current(0)
 modeVar.trace("w", on_trace_mode)
 
 # Default to be 0
-loglCombo = ttk.Combobox(top, font = ("Times New Roman", 10), values=[10, 20, 30])
+loglCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=[10, 20, 30])
 # loglCombo.grid(row=13, column=15)
 loglCombo.current(0)
 
 # Entry
-nameEntry = tk.Entry(top,bd=3)
+nameEntry = tk.Entry(second_frame,bd=3)
 # nameEntry.grid(row=14, column=5)
-fipEntry = tk.Entry(top,bd=3)
+fipEntry = tk.Entry(second_frame,bd=3)
 # fipEntry.grid(row=14, column=15)
 
 # Button
-fileButt = tk.Button(top, font = ("Times New Roman", 10),text="Select file", command=browseFiles)
+fileButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select file", command=browseFiles)
 fileButt.grid(row=11, column=5)
-fileConfButt = tk.Button(top, font = ("Times New Roman", 10),text="Select YAML file", command=browseConfFiles)
+fileConfButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select YAML file", command=browseConfFiles)
 fileConfButt.grid(row=11, column=15)
-logdButt = tk.Button(top, font = ("Times New Roman", 10),text="Select log directory", command=browseLogDir)
+logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select log directory", command=browseLogDir)
 logdButt.grid(row=12, column=5)
-fiButt = tk.Button(top, font = ("Times New Roman", 10),text="Inject faults", command=injectFaults)
+fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject faults", command=injectFaults)
 fiButt.grid(row=13, column=20)
 
 # -------------------------------
@@ -284,7 +299,7 @@ def addDict():
     key = feedKeyEntry.get()
     value = feedValEntry.get()
     Dict[key] = value
-    feedLabel1 = tk.Label(top, text='Successfully added!')
+    feedLabel1 = tk.Label(second_frame, text='Successfully added!')
     feedLabel1.grid(row=17, column=25)
     feedLabel1.after(1000, feedLabel1.destroy)
 
@@ -292,33 +307,40 @@ def printt():
     print(Dict)
 
 # Label
-staTitleLabel = tk.Label(top, text="Statistics", font = ("Times New Roman", 10)).grid(row=15, column=0, padx = 10, pady = 25)
-corrPreLabel = tk.Label(top, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=16, column=0, padx = 10, pady = 25)
-feedKeyLabel = tk.Label(top, text="Feed key: ", font = ("Times New Roman", 10))
+staTitleLabel = tk.Label(second_frame, text="Statistics", font = ("Times New Roman", 10)).grid(row=15, column=0, padx = 10, pady = 25)
+corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=16, column=0, padx = 10, pady = 25)
+feedKeyLabel = tk.Label(second_frame, text="Feed key: ", font = ("Times New Roman", 10))
 feedKeyLabel.grid(row=17, column=0, padx = 10, pady = 25)
-feedValLabel = tk.Label(top, text="Feed value: ", font = ("Times New Roman", 10))
+feedValLabel = tk.Label(second_frame, text="Feed value: ", font = ("Times New Roman", 10))
 feedValLabel.grid(row=17, column=10, padx = 10, pady = 25)
+testXLabel = tk.Label(second_frame, text="Test set (X): ", font = ("Times New Roman", 10))
+testXLabel.grid(row=18, column=0, padx = 10, pady = 25)
+testYLabel = tk.Label(second_frame, text="Test set (Y): ", font = ("Times New Roman", 10))
+testYLabel.grid(row=18, column=10, padx = 10, pady = 25)
 
 
 # Entry
-correPreEntry = tk.Entry(top,bd=3)
+correPreEntry = tk.Entry(second_frame,bd=3)
 correPreEntry.grid(row=16, column=5)
-feedKeyEntry = tk.Entry(top,bd=3)
+feedKeyEntry = tk.Entry(second_frame,bd=3)
 feedKeyEntry.grid(row=17, column=5)
-feedValEntry = tk.Entry(top,bd=3)
+feedValEntry = tk.Entry(second_frame,bd=3)
 feedValEntry.grid(row=17, column=15)
+testXEntry = tk.Entry(second_frame,bd=3)
+testXEntry.grid(row=18, column=5)
+testYEntry = tk.Entry(second_frame,bd=3)
+testYEntry.grid(row=18, column=15)
 
 
 #
 
 # Button
-feedDicButt = tk.Button(top, font = ("Times New Roman", 10),text="Add feed Dictionary", command=addDict)
+feedDicButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add feed Dictionary", command=addDict)
 feedDicButt.grid(row=17, column=20)
-feeButt = tk.Button(top, font = ("Times New Roman", 10),text="Print", command=printt)
-feeButt.grid(row=18, column=0)
+# feeButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Print", command=printt)
+# feeButt.grid(row=18, column=0)
 
 
 
-
-top.mainloop()
+root.mainloop()
 
