@@ -105,7 +105,7 @@ def refresh( ):
 # Parameters Part
 #Labels
 # FIXME: How to align  'Parameters' with 'ScalarFaultType' - Beautify the GUI
-paraTitlelabel = tk.Label(second_frame, text="YAML File Parameters", font = ("Times New Roman", 10)).grid(row=0, column=0)
+paraTitlelabel = tk.Label(second_frame, text="YAML File Parameters", font = ('Times New Roman', 12, 'bold')).grid(row=0, column=0)
 
 
 injectLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="InjectMode: ")\
@@ -244,7 +244,7 @@ def refresh_mode( ):
 
 
 # Label
-fiTitleLabel = tk.Label(second_frame, text="Fault injection", font = ("Times New Roman", 10)).grid(row=10, column=0, padx = 10, pady = 25)
+fiTitleLabel = tk.Label(second_frame, text="Fault injection", font = ('Times New Roman', 12, 'bold')).grid(row=10, column=0, padx = 10, pady = 25)
 sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row=11, column=0, padx = 10, pady = 25)
 confLabel = tk.Label(second_frame, text="configFileName:", font = ("Times New Roman", 10)).grid(row=11, column=10, padx = 10, pady = 25)
 logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10)).grid(row=12, column=0, padx = 10, pady = 25)
@@ -307,7 +307,7 @@ def printt():
     print(Dict)
 
 # Label
-staTitleLabel = tk.Label(second_frame, text="Statistics", font = ("Times New Roman", 10)).grid(row=15, column=0, padx = 10, pady = 25)
+staTitleLabel = tk.Label(second_frame, text="Statistics", font = ('Times New Roman', 12, 'bold')).grid(row=15, column=0, padx = 10, pady = 25)
 corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=16, column=0, padx = 10, pady = 25)
 feedKeyLabel = tk.Label(second_frame, text="Feed key: ", font = ("Times New Roman", 10))
 feedKeyLabel.grid(row=17, column=0, padx = 10, pady = 25)

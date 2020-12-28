@@ -2,7 +2,7 @@ import ast
 import astor
 import logging
 
-# Add `import TensorFI as ti`
+# ------------------------- Add `import TensorFI as ti` -----------------------------------
 def addImport(fPath):
 
     i = 0;
@@ -22,7 +22,7 @@ def addImport(fPath):
     # print(astor.to_source(parse_src))
     return parse_src
 
-# Add TensorFI init function
+# ------------------------------- Add TensorFI init function -----------------------------------
 # `fi = ti.TensorFI(sess,configFileName='./confFiles/eb/default-1eb.yaml', logLevel = 10, name = "lenet", disableInjections=False)`
 
 def addFi(parse_src, # Parsed code
@@ -84,7 +84,7 @@ def addFi(parse_src, # Parsed code
     return parse_src
 
 
-# TODO: Add code to find the correctIndex
+# ---------------------------- Add code to find the correctIndex -----------------------------------------
 # `correct = sess.run(correct_prediction, feed_dict={x: X_test, y: y_test})
 #  correctIndex = np.argwhere(correct == True)
 #  correctIndex = correctIndex.flatten()`
@@ -132,13 +132,18 @@ def addCorrect(parse_src, corrFun, feed_dict):
 
 
 
-# TODO: Add SDC code
+# ---------------- FIXME: Add new reshape code -------------------------
 # `totalSDC = 0
 #  totalFI = 10
-#  resFile = open("lenet-bitFI10.csv", "a")`
-# FIXME: filename only exists in debug setting; Now default it is debug; Add location to insert
-# E.g., parse_src =addSDC('lenet-bitFI10.csv')
-def addSDC(filename):
+#  resFile = open("lenet-bitFI10.csv", "a")
+#  XtestShape = list(X_test.shape)
+#  ytestShape = list(y_test.shape)
+#  XtestShape[0] = 1
+#  ytestShape[0] = 1
+#  txShape = tuple(XtestShape)
+#  tyShape = tuple(ytestShape)`
+# E.g., parse_src =addSDC('lenet-sdcrates.csv', 10)
+def addSDC(filename, totFI):
     body, ass1, ass2, ass3, args, tar1, tar2, tar3 = [], [], [], [], [], [], [], []
 
     args.append(ast.Str(s=filename))
@@ -150,8 +155,7 @@ def addSDC(filename):
     tar3.append(ast.Name('resFile', ast.Store()))
 
     ass1 = ast.Assign(tar1, ast.Num(0))
-    # FIXME: Change num -> 1000
-    ass2 = ast.Assign(tar2, ast.Num(10))
+    ass2 = ast.Assign(tar2, ast.Num(totFI))
     ass3 = ast.Assign(tar3, val)
 
     body.append(ass1)
@@ -162,28 +166,94 @@ def addSDC(filename):
     parse_src = ast.Module(body)
     return parse_src
 
-# TODO: Add for loop to calculate SDC
+# ------------------- Add for loop to calculate SDC -------------------------
 # `    for i in range(10):
-#         # construct single input
 #         SDC = 0
 #         tx = X_test[correctIndex[i]]
 #         ty = y_test[correctIndex[i]]
-#         tx = tx.reshape(1, 32, 32, 1)
-#         ty = ty.reshape(1)
+#         tx = tx.reshape(txShape)
+#         ty = ty.reshape(tyShape)
 #         for j in range(totalFI):
 #             acy = sess.run(correct_prediction, feed_dict={x: tx, y: ty})
-#             # FI does not result in SDC
-#             if (acy == True):
-#                 resFile.write(`1` + ",")
-#             else:
-#                 resFile.write(`0` + ",")
+#             if (acy == False):
 #                 SDC +=1
 #         totalSDC += SDC
-#         resFile.write("\n")
-#       print("SDC rates", totalSDC/100.0)`
+#     SDCrates = totalSDC/(10.0*totalFI)
+#     resFile.write(str(SDCrates))
+#     print("SDC rates: ", SDCrates)
+# E.g., parse_src = addLoop('X_test', 'y_test', {'x': 'X_test', 'y': 'y_test'})
 
-def addFor():
-    print()
+def addLoop(Xtest, ytest, feed_dict):
+
+    body, fbody, fName1, fName2, fName3, fNum, aTarg, exargs, eCargs, pvals, pelts, arg3, arg4, argfor, bodyfor= [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
+
+    fNum.append(ast.Num(10))
+    fName1.append(ast.Name('SDC', ast.Store()))
+    fName2.append(ast.Name('tx', ast.Store()))
+    fName3.append(ast.Name('ty', ast.Store()))
+
+    arg3.append(ast.Name('txShape', ast.Load()))
+    arg4.append(ast.Name('tyShape', ast.Load()))
+
+    bodyTar, bodyAttrArgs, ops, ifname, ifbody = [], [], [], [], []
+
+    bodyTar.append(ast.Name('acy', ast.Store()))
+    bodyAttrArgs.append(ast.Name('correct_prediction', ast.Load()))
+
+    bodyKey, keys, vals = [], [], []
+    bodyKey.append(ast.keyword('feed_dict', ast.Dict(keys, vals)))
+    for k, v in feed_dict.items():
+        keys.append(ast.Name(k, ast.Load()))
+        vals.append(ast.Name(v, ast.Load()))
+
+    ops.append(ast.Eq())
+    ifname.append(ast.Name('False', ast.Load()))
+    ifbody.append(ast.AugAssign(ast.Name('SDC', ast.Store()), ast.Add(), ast.Num(1)))
+
+    argfor.append(ast.Name('totalFI', ast.Load()))
+    # FIXME: Replace sess
+    bodyfor.append(ast.Assign(bodyTar, ast.Call(ast.Attribute(ast.Name('sess', ast.Load()), 'run', ast.Load()), bodyAttrArgs,
+                                       bodyKey, None, None)))
+    bodyfor.append(ast.If(ast.Compare(ast.Name('acy', ast.Load()), ops, ifname), ifbody, []))
+
+    ass1 = ast.Assign(fName1, ast.Num(0))
+    ass2 = ast.Assign(fName2, ast.Subscript(ast.Name(Xtest, ast.Load()), ast.Index(ast.Subscript(ast.Name('correctIndex', ast.Load()), ast.Index(ast.Name('i', ast.Load())), ast.Load())), ast.Load()))
+    ass3 = ast.Assign(fName3, ast.Subscript(ast.Name(ytest, ast.Load()), ast.Index(ast.Subscript(ast.Name('correctIndex', ast.Load()), ast.Index(ast.Name('i', ast.Load())), ast.Load())), ast.Load()))
+    ass4 = ast.Assign(fName2, ast.Call(ast.Attribute(ast.Name('tx', ast.Load()), 'reshape', ast.Load()), arg3, [], None, None))
+    ass5 = ast.Assign(fName3, ast.Call(ast.Attribute(ast.Name('ty', ast.Load()), 'reshape', ast.Load()), arg3, [], None, None))
+    for2 = ast.For(ast.Name('j', ast.Store()), ast.Call(ast.Name('range', ast.Load()), argfor, [], None, None), bodyfor, [])
+    augs = ast.AugAssign(ast.Name('totalSDC', ast.Store()),ast.Add(), ast.Name('SDC', ast.Load()))
+
+    fbody.append(ass1)
+    fbody.append(ass2)
+    fbody.append(ass3)
+    fbody.append(ass4)
+    fbody.append(ass5)
+    fbody.append(for2)
+    fbody.append(augs)
+
+    foR = ast.For(ast.Name('i', ast.Store()), ast.Call(ast.Name('range', ast.Load()), fNum, [], None, None), fbody, [])
+
+    aTarg.append(ast.Name('SDCrates', ast.Store()))
+    assi = ast.Assign(aTarg, ast.BinOp(ast.Name('totalSDC', ast.Load()), ast.Div(), ast.BinOp(ast.Num(10.0), ast.Mult(), ast.Name('totalFI', ast.Load()))))
+
+    eCargs.append(ast.Name('SDCrates', ast.Load()))
+    exargs.append(ast.Call(ast.Name('str', ast.Load()), eCargs, [], None, None))
+    expr = ast.Expr(ast.Call(ast.Attribute(ast.Name('resFile', ast.Load()), 'write', ast.Load()), exargs, [], None, None))
+
+    pelts.append(ast.Str('SDC rates: '))
+    pelts.append(ast.Name('SDCrates', ast.Load()))
+    pvals.append(ast.Tuple(pelts, ast.Load()))
+    prit = ast.Print(None, pvals, True)
+
+    body.append(foR)
+    body.append(assi)
+    body.append(expr)
+    body.append(prit)
+
+    # FIXME: Add location to insert
+    parse_src = ast.Module(body)
+    return parse_src
 
 if __name__ == '__main__':
     parse_src_import=addImport('lenet-mnist-no-FI.py')
