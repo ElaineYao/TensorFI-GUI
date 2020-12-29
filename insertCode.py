@@ -2,10 +2,9 @@ import ast
 import astor
 import logging
 
-# ------------------------- Add `import TensorFI as ti` -----------------------------------
-# FIXME: Add import numpy as np
+# ---------------- Add `import TensorFI as ti`, 'import numpy as np' -----------------
+# FIXME: Developer may import numpy as xxx, and this will cause exception
 def addImport(fPath):
-
     i = 0;
     parse_src = ast.parse(open(fPath).read())
 
@@ -13,15 +12,22 @@ def addImport(fPath):
         i = i+1;
         if isinstance(node, ast.Import):
             alia = ast.alias('TensorFI', 'ti')
+            alia2 = ast.alias('numpy', 'np')
             aliaList = []
+            alia2List = []
             aliaList.append(alia)
+            alia2List.append(alia2)
             importBody = ast.Import(aliaList)
+            import2Body = ast.Import(alia2List)
             parse_src.body.insert(i, importBody)
+            parse_src.body.insert(i+1, import2Body)
             break
     ast.fix_missing_locations(parse_src)
     # print(ast.dump(parse_src))
     # print(astor.to_source(parse_src))
     return parse_src
+
+
 
 # ---------------------------- Add code to find the correctIndex -----------------------------------------
 # `correct = sess.run(correct_prediction, feed_dict={x: X_test, y: y_test})
