@@ -142,25 +142,55 @@ def addCorrect(parse_src, corrFun, feed_dict):
 #  ytestShape[0] = 1
 #  txShape = tuple(XtestShape)
 #  tyShape = tuple(ytestShape)`
-# E.g., parse_src =addSDC('lenet-sdcrates.csv', 10)
-def addSDC(filename, totFI):
-    body, ass1, ass2, ass3, args, tar1, tar2, tar3 = [], [], [], [], [], [], [], []
+# E.g., parse_src =addSDC('lenet-sdcrates.csv', 10,'X_test', 'y_test')
+def addSDC(filename, totFI, Xtest, ytest):
+    body, ass1, ass2, ass3= [], [], [], []
 
+    args, args4, args5, args8, args9 = [], [], [], [], []
     args.append(ast.Str(s=filename))
     args.append(ast.Str(s='a'))
-    val = ast.Call(ast.Name('open', ast.Load()), args, [], None, None)
+    args4.append(ast.Attribute(ast.Name(Xtest, ast.Load()), 'shape', ast.Load()))
+    args5.append(ast.Attribute(ast.Name(ytest, ast.Load()), 'shape', ast.Load()))
+    args8.append(ast.Name('XtestShape', ast.Load()))
+    args9.append(ast.Name('ytestShape', ast.Load()))
+
+    tar1, tar2, tar3, tar4, tar5, tar6, tar7, tar8, tar9 = [], [], [], [], [], [], [], [], []
 
     tar1.append(ast.Name('totalSDC', ast.Store()))
     tar2.append(ast.Name('totalFI', ast.Store()))
     tar3.append(ast.Name('resFile', ast.Store()))
+    tar4.append(ast.Name('XtestShape', ast.Store()))
+    tar5.append(ast.Name('ytestShape', ast.Store()))
+    tar6.append(ast.Subscript(ast.Name('XtestShape', ast.Load()), ast.Index(ast.Num(0)), ast.Store()))
+    tar7.append(ast.Subscript(ast.Name('ytestShape', ast.Load()), ast.Index(ast.Num(0)), ast.Store()))
+    tar8.append(ast.Name('txShape', ast.Store()))
+    tar9.append(ast.Name('tyShape', ast.Store()))
+
+    val = ast.Call(ast.Name('open', ast.Load()), args, [], None, None)
+    val4 = ast.Call(ast.Name('list', ast.Load()), args4, [], None, None)
+    val5 = ast.Call(ast.Name('list', ast.Load()), args5, [], None, None)
+    val8 = ast.Call(ast.Name('tuple', ast.Load()), args8, [], None, None)
+    val9 = ast.Call(ast.Name('tuple', ast.Load()), args9, [], None, None)
 
     ass1 = ast.Assign(tar1, ast.Num(0))
     ass2 = ast.Assign(tar2, ast.Num(totFI))
     ass3 = ast.Assign(tar3, val)
+    ass4 = ast.Assign(tar4, val4)
+    ass5 = ast.Assign(tar5, val5)
+    ass6 = ast.Assign(tar6, ast.Num(1))
+    ass7 = ast.Assign(tar7, ast.Num(1))
+    ass8 = ast.Assign(tar8, val8)
+    ass9 = ast.Assign(tar9, val9)
 
     body.append(ass1)
     body.append(ass2)
     body.append(ass3)
+    body.append(ass4)
+    body.append(ass5)
+    body.append(ass6)
+    body.append(ass7)
+    body.append(ass8)
+    body.append(ass9)
 
     # FIXME: Add location to insert
     parse_src = ast.Module(body)
