@@ -8,11 +8,11 @@ import ruamel_yaml as yaml
 import insertCode as inCd
 import logging
 import os
-
+import csv
 
 root = tk.Tk()
 root.title('TensorFI')
-root.geometry('850x700')
+root.geometry('890x700')
 
 main_frame = tk.Frame(root)
 main_frame.pack(fill=tk.BOTH, expand=1)
@@ -68,14 +68,14 @@ def addOp():
     opsEle = opsCombo.get() + ' = ' + opsEntry.get()
     opsList.append(opsEle)
     opsLabel1 = tk.Label(second_frame, text='Successfully added!')
-    opsLabel1.grid(row=6, column=25)
+    opsLabel1.grid(row=7, column=20)
     opsLabel1.after(1000, opsLabel1.destroy)
 
 def addIns():
     insEle = insCombo.get() + ' = ' + insEntry.get()
     insList.append(insEle)
     insLabel1 = tk.Label(second_frame, text='Successfully added!')
-    insLabel1.grid(row=6, column=25)
+    insLabel1.grid(row=8, column=20)
     insLabel1.after(1000, insLabel1.destroy)
 
 # ------------------------
@@ -188,38 +188,71 @@ def browseFiles():
                                           title="Select a File",
                                           filetypes=(("Python files",
                                                       "*.py*"),))
+    global sourcefile
+    if filename != '':
+        sourcefile = filename
 
     if filename == emptyTuple:
         fileButt.configure(text="Select file")
-    else: fileButt.configure(text=filename)
+    else:
+        head, tail = os.path.split(sourcefile)
+        fileButt.configure(text=tail)
 
 def browseConfFiles():
     filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
                                                   title="Select a File",
                                                   filetypes=(("YAML files",
                                                               "*.yaml*"),))
+    global confile
+    if filename != '':
+        confile = filename
+
     if filename == emptyTuple:
         fileConfButt.configure(text="Select YAML file")
-    else: fileConfButt.configure(text=filename)
+    else:
+        head, tail = os.path.split(confile)
+        fileConfButt.configure(text=tail)
 
 def browseLogDir():
     dirname = tkinter.filedialog.askdirectory()
+    global dirpath
+    if dirname != '':
+        dirpath = dirname
     if dirname == emptyTuple:
         logdButt.configure(text="Select log directory")
-    else: logdButt.configure(text=dirname)
+    else:
+        head, tail = os.path.split(dirpath)
+        logdButt.configure(text=tail)
+
 
 
 #TODO: Add exceptions
 def injectFaults():
-    filename = fileButt.cget('text')
-    parse_src_import = inCd.addImport(filename)
-    loglValue = eval(loglCombo.get())
-    if modeCombo.get()=='Run':
-        loglValue = 0
+    # filename = fileButt.cget('text')
+    # parse_src_import = inCd.addImport(filename)
+    # loglValue = eval(loglCombo.get())
+    # if modeCombo.get()=='Run':
+    #     loglValue = 0
 
-    parse_src_fi = inCd.addFi(parse_src_import, fileConfButt.cget('text'), logdButt.cget('text'), loglValue, disCombo.get(), nameEntry.get(), fipEntry.get())
+    # FIXME:
+    # parse_src_fi = addFi(parse_src_import, 'correct_prediction', {'x': 'X_test', 'y': 'y_test'}, 'lenet-sdcrates.csv',
+    #                      10, 'X_test', 'y_test',
+                         # 'testGen.yaml', "faultLogs/", logging.DEBUG, 'False', 'convolutional', 'fi_')
+
+    # parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv',int(numFIEntry.get()), testXEntry.get(), testYEntry.get(), confile, dirpath, loglValue, disCombo.get(), nameEntry.get(), fipEntry.get())
+
     # Execute the parsed code
-    exec(compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+    # exec(compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+    with open('sdcRates.csv', 'r') as csvfile:
+        # creating a csv reader object
+        csvreader = csv.reader(csvfile)
+        sdc = ''
+        for row in csvreader:
+            for col in row:
+                print(col)
+                sdc = col
+    sdcOnceLabel.configure(text = 'SDC rates: '+sdc)
+
 
 #-------
 # Callback function
@@ -287,11 +320,9 @@ fileConfButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Sele
 fileConfButt.grid(row=11, column=15)
 logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select log directory", command=browseLogDir)
 logdButt.grid(row=12, column=5)
-fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject faults", command=injectFaults)
-fiButt.grid(row=13, column=20)
 
 # -------------------------------
-# Statistics
+# Statistics setting
 
 # Generate feed_dict
 Dict = {}
@@ -300,15 +331,14 @@ def addDict():
     value = feedValEntry.get()
     Dict[key] = value
     feedLabel1 = tk.Label(second_frame, text='Successfully added!')
-    feedLabel1.grid(row=17, column=25)
+    feedLabel1.grid(row=17, column=20)
     feedLabel1.after(1000, feedLabel1.destroy)
 
-def printt():
-    print(Dict)
 
 # Label
-staTitleLabel = tk.Label(second_frame, text="Statistics", font = ('Times New Roman', 12, 'bold')).grid(row=15, column=0, padx = 10, pady = 25)
+staTitleLabel = tk.Label(second_frame, text="Statistics settings", font = ('Times New Roman', 12, 'bold')).grid(row=15, column=0, padx = 10, pady = 25)
 corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=16, column=0, padx = 10, pady = 25)
+numFILabel = tk.Label(second_frame, text="Number of injections: ", font = ("Times New Roman", 10)).grid(row=16, column=10, padx = 10, pady = 25)
 feedKeyLabel = tk.Label(second_frame, text="Feed key: ", font = ("Times New Roman", 10))
 feedKeyLabel.grid(row=17, column=0, padx = 10, pady = 25)
 feedValLabel = tk.Label(second_frame, text="Feed value: ", font = ("Times New Roman", 10))
@@ -318,10 +348,11 @@ testXLabel.grid(row=18, column=0, padx = 10, pady = 25)
 testYLabel = tk.Label(second_frame, text="Test set (Y): ", font = ("Times New Roman", 10))
 testYLabel.grid(row=18, column=10, padx = 10, pady = 25)
 
-
 # Entry
 correPreEntry = tk.Entry(second_frame,bd=3)
 correPreEntry.grid(row=16, column=5)
+numFIEntry = tk.Entry(second_frame,bd=3)
+numFIEntry.grid(row=16, column=15)
 feedKeyEntry = tk.Entry(second_frame,bd=3)
 feedKeyEntry.grid(row=17, column=5)
 feedValEntry = tk.Entry(second_frame,bd=3)
@@ -331,15 +362,19 @@ testXEntry.grid(row=18, column=5)
 testYEntry = tk.Entry(second_frame,bd=3)
 testYEntry.grid(row=18, column=15)
 
-
-#
-
 # Button
 feedDicButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add feed Dictionary", command=addDict)
 feedDicButt.grid(row=17, column=20)
 # feeButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Print", command=printt)
 # feeButt.grid(row=18, column=0)
+fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject faults", command=injectFaults)
+fiButt.grid(row=18, column=20)
 
+#-----------------
+# Results
+resTitleLabel = tk.Label(second_frame, text="Results", font = ('Times New Roman', 12, 'bold')).grid(row=19, column=0, padx = 10, pady = 25)
+sdcOnceLabel = tk.Label(second_frame, text="SDC rates: ", font=('Times New Roman', 10))
+sdcOnceLabel.grid(row=20, column=0,padx=10, pady=25)
 
 
 root.mainloop()

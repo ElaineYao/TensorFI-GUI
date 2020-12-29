@@ -152,7 +152,7 @@ def addSDC(filename, totFI, Xtest, ytest):
 #     print("SDC rates: ", SDCrates)
 # E.g., parse_src = addLoop('X_test', 'y_test', {'x': 'X_test', 'y': 'y_test'}, 'sess')
 
-def addLoop(Xtest, ytest, feed_dict, sess):
+def addLoop(Xtest, ytest, sess):
 
     body, fbody, fName1, fName2, fName3, fNum, aTarg, exargs, eCargs, pvals, pelts, arg3, arg4, argfor, bodyfor= [], [], [], [], [], [], [], [], [], [], [], [], [], [], []
 
@@ -171,9 +171,11 @@ def addLoop(Xtest, ytest, feed_dict, sess):
 
     bodyKey, keys, vals = [], [], []
     bodyKey.append(ast.keyword('feed_dict', ast.Dict(keys, vals)))
-    for k, v in feed_dict.items():
-        keys.append(ast.Name(k, ast.Load()))
-        vals.append(ast.Name(v, ast.Load()))
+
+    keys.append(ast.Name('x', ast.Load()))
+    keys.append(ast.Name('y', ast.Load()))
+    vals.append(ast.Name('tx', ast.Load()))
+    vals.append(ast.Name('ty', ast.Load()))
 
     ops.append(ast.Eq())
     ifname.append(ast.Name('False', ast.Load()))
@@ -188,7 +190,7 @@ def addLoop(Xtest, ytest, feed_dict, sess):
     ass2 = ast.Assign(fName2, ast.Subscript(ast.Name(Xtest, ast.Load()), ast.Index(ast.Subscript(ast.Name('correctIndex', ast.Load()), ast.Index(ast.Name('i', ast.Load())), ast.Load())), ast.Load()))
     ass3 = ast.Assign(fName3, ast.Subscript(ast.Name(ytest, ast.Load()), ast.Index(ast.Subscript(ast.Name('correctIndex', ast.Load()), ast.Index(ast.Name('i', ast.Load())), ast.Load())), ast.Load()))
     ass4 = ast.Assign(fName2, ast.Call(ast.Attribute(ast.Name('tx', ast.Load()), 'reshape', ast.Load()), arg3, [], None, None))
-    ass5 = ast.Assign(fName3, ast.Call(ast.Attribute(ast.Name('ty', ast.Load()), 'reshape', ast.Load()), arg3, [], None, None))
+    ass5 = ast.Assign(fName3, ast.Call(ast.Attribute(ast.Name('ty', ast.Load()), 'reshape', ast.Load()), arg4, [], None, None))
     for2 = ast.For(ast.Name('j', ast.Store()), ast.Call(ast.Name('range', ast.Load()), argfor, [], None, None), bodyfor, [])
     augs = ast.AugAssign(ast.Name('totalSDC', ast.Store()),ast.Add(), ast.Name('SDC', ast.Load()))
 
@@ -281,17 +283,18 @@ def addFi(parse_src, # Parsed code
     tiCall = ast.Call(tiAttr, sessNameList, fiKeyList, None, None)
 
     tiBody = []
-    tiBody.append(ast.Assign(fiNameList, tiCall))
 
     corrBody = addCorrect(corrFun, feed_dict, s)
     for i in corrBody:
         tiBody.append(i)
 
+    tiBody.append(ast.Assign(fiNameList, tiCall))
+
     sdcBody = addSDC(filename, totFI, Xtest, ytest)
     for i in sdcBody:
         tiBody.append(i)
 
-    loopBody = addLoop(Xtest, ytest, feed_dict, s)
+    loopBody = addLoop(Xtest, ytest, s)
     for i in loopBody:
         tiBody.append(i)
 
