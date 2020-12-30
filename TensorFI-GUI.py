@@ -93,6 +93,7 @@ def refresh( ):
         insCombo.configure(state="disabled")
         insEntry.config(state='disabled')
         insButt.config(state='disabled')
+
     else:
         opsCombo.configure(state="disabled")
         opsEntry.config(state='disabled')
@@ -163,6 +164,8 @@ modeCombo.grid(row=5, column=3, sticky = 'w')
 modeCombo.current(0)
 choiceVar2.trace("w", on_trace_choice2)
 
+modeCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10),  values=['Single', 'Multiple'])
+modeCombo.grid(row=5, column=3, sticky = 'w')
 
 scalarCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
 scalarCombo.grid(row=6, column=1, sticky = 'w')
