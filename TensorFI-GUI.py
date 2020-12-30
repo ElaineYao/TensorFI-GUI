@@ -65,8 +65,13 @@ def generateYaml():
     geneLabel1.after(1000, geneLabel1.destroy)
 
 def addOp():
-    opsEle = opsCombo.get() + ' = ' + opsEntry.get()
-    opsList.append(opsEle)
+    if modeCombo2.get() == 'Single':
+        opsEle = opsCombo.get() + ' = ' + opsEntry.get()
+        opsList.append(opsEle)
+
+    else:
+        opsEle = opsCombo.get()
+
     opsLabel1 = tk.Label(second_frame, text='Successfully added!')
     opsLabel1.grid(row=7, column=5)
     opsLabel1.after(1000, opsLabel1.destroy)
@@ -93,7 +98,12 @@ def refresh( ):
         insCombo.configure(state="disabled")
         insEntry.config(state='disabled')
         insButt.config(state='disabled')
-
+        if modeCombo2.get() == 'Multiple':
+            opsEntry2.config(state="normal")
+            opsEntry3.config(state="normal")
+        else:
+            opsEntry2.config(state="disabled")
+            opsEntry3.config(state="disabled")
     else:
         opsCombo.configure(state="disabled")
         opsEntry.config(state='disabled')
@@ -103,21 +113,6 @@ def refresh( ):
         insCombo.config(state='normal')
         insEntry.config(state='normal')
         insButt.config(state='normal')
-
-def on_trace_choice2(name, index, mode):
-    refresh2()
-
-# FIXME: didn't work! 可能是同时控制一个控件出问题了
-def refresh2( ):
-    choice = modeCombo.get()
-    if choice == 'Single':
-        opsEntry.config(state='normal')
-        opsEntry2.config(state="disabled")
-        opsEntry3.config(state="disabled")
-    else:
-        opsEntry.config(state='normal')
-        opsEntry2.config(state="normal")
-        opsEntry3.config(state="normal")
 
 #--------------
 # Parameters Part
@@ -159,13 +154,11 @@ injectCombo.current(0)
 choiceVar.trace("w", on_trace_choice)
 
 choiceVar2 = tk.StringVar()
-modeCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar2, values=['Single', 'Multiple'])
-modeCombo.grid(row=5, column=3, sticky = 'w')
-modeCombo.current(0)
-choiceVar2.trace("w", on_trace_choice2)
+modeCombo2 = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar2, values=['Single', 'Multiple'])
+modeCombo2.grid(row=5, column=3, sticky = 'w')
+modeCombo2.current(0)
+choiceVar2.trace("w", on_trace_choice)
 
-modeCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10),  values=['Single', 'Multiple'])
-modeCombo.grid(row=5, column=3, sticky = 'w')
 
 scalarCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
 scalarCombo.grid(row=6, column=1, sticky = 'w')
@@ -417,4 +410,3 @@ sdcOnceLabel.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
 
 
 root.mainloop()
-
