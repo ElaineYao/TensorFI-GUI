@@ -9,6 +9,7 @@ import insertCode as inCd
 import logging
 import os
 import csv
+import numpy as np
 
 root = tk.Tk()
 root.title('TensorFI')
@@ -37,28 +38,85 @@ insList = []
 
 # Generate default.yaml file
 def generateYaml():
-    seed = seedEntry.get()
-    scalarFaultType = scalarCombo.get()
-    tensorFaultType = tensorCombo.get()
-    skipCount = skipEntry.get()
-    injectMode = injectCombo.get()
+    if modeCombo2.get() == 'Single':
+        seed = seedEntry.get()
+        scalarFaultType = scalarCombo.get()
+        tensorFaultType = tensorCombo.get()
+        skipCount = skipEntry.get()
+        injectMode = injectCombo.get()
 
-    paramsDict = {'ScalarFaultType': 'None', 'TensorFaultType': 'bitFlip-element', 'Ops': None,
-              'Instances': None, 'InjectMode': 'errorRate'}
-    paramsDict['ScalarFaultType'] = scalarFaultType
-    paramsDict['TensorFaultType'] = tensorFaultType
-    paramsDict['InjectMode'] = injectMode
-    if opsList != []:
-        paramsDict['Ops'] = opsList
-    if insList != []:
-        paramsDict['Instances'] = insList
-    if seed != '':
-        paramsDict['Seed'] = int(seed)
-    if skipCount != '':
-        paramsDict['SkipCount'] = int(skipCount)
+        paramsDict = {'ScalarFaultType': 'None', 'TensorFaultType': 'bitFlip-element', 'Ops': None,
+                      'Instances': None, 'InjectMode': 'errorRate'}
+        paramsDict['ScalarFaultType'] = scalarFaultType
+        paramsDict['TensorFaultType'] = tensorFaultType
+        paramsDict['InjectMode'] = injectMode
+        if opsList != []:
+            paramsDict['Ops'] = opsList
+        if insList != []:
+            paramsDict['Instances'] = insList
+        if seed != '':
+            paramsDict['Seed'] = int(seed)
+        if skipCount != '':
+            paramsDict['SkipCount'] = int(skipCount)
 
-    with open('testGen.yaml', 'w') as f:
-        data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
+        with open('testGen.yaml', 'w') as f:
+            data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
+
+        geneLabel1 = tk.Label(second_frame, text='Successfully generated!')
+        geneLabel1.grid(row=9, column=5)
+        geneLabel1.after(1000, geneLabel1.destroy)
+    else:
+        totList = []
+        numFile = 0
+        for j in range(len(opsList)): # j - select each ops, e.g., All
+            ops = list(opsList[j].keys())[0]
+            probList = list(opsList[j].values())[0]
+            eachList = []
+            numFile = 0
+            for i in np.arange(probList[0], probList[1]+0.0001, probList[2]):
+                eachELe = ops + ' = ' + str(i)
+                eachList.append(eachELe)
+                numFile += 1
+            totList.append(eachList)
+
+        print('totList:')
+        print(totList)
+
+        # finList : [['All = 0.1', 'ADD = 0.1'], ['All = 0.2', 'ADD = 0.2']], finEaList = ['All = 0.1', 'ADD = 0.1']
+        finList = []
+        for i in range(numFile):
+            finEaList = []
+            for j in range(len(opsList)):
+                col = totList[j]
+                ele = col[i]
+                finEaList.append(ele)
+            finList.append(finEaList)
+
+        for i in range(numFile):
+            seed = seedEntry.get()
+            scalarFaultType = scalarCombo.get()
+            tensorFaultType = tensorCombo.get()
+            skipCount = skipEntry.get()
+            injectMode = injectCombo.get()
+
+            paramsDict = {'ScalarFaultType': 'None', 'TensorFaultType': 'bitFlip-element', 'Ops': None,
+                      'Instances': None, 'InjectMode': 'errorRate'}
+            paramsDict['ScalarFaultType'] = scalarFaultType
+            paramsDict['TensorFaultType'] = tensorFaultType
+            paramsDict['InjectMode'] = injectMode
+            if opsList != []:
+                paramsDict['Ops'] = finList[i]
+
+            if insList != []:
+                paramsDict['Instances'] = insList
+            if seed != '':
+                paramsDict['Seed'] = int(seed)
+            if skipCount != '':
+                paramsDict['SkipCount'] = int(skipCount)
+            yamlFile = 'test-'+str(i)+'.yaml'
+            with open(yamlFile, 'w') as f:
+                data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
+
 
     geneLabel1 = tk.Label(second_frame, text='Successfully generated!')
     geneLabel1.grid(row=9, column=5)
@@ -70,7 +128,11 @@ def addOp():
         opsList.append(opsEle)
 
     else:
+        opsDict = {}
+        opsDList = [float(opsEntry.get()), float(opsEntry2.get()), float(opsEntry3.get())]
         opsEle = opsCombo.get()
+        opsDict[opsEle] = opsDList
+        opsList.append(opsDict)
 
     opsLabel1 = tk.Label(second_frame, text='Successfully added!')
     opsLabel1.grid(row=7, column=5)
