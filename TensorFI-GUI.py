@@ -10,6 +10,8 @@ import logging
 import os
 import csv
 import numpy as np
+import astor
+import subprocess
 
 root = tk.Tk()
 root.title('TensorFI')
@@ -59,7 +61,7 @@ def generateYaml():
         if skipCount != '':
             paramsDict['SkipCount'] = int(skipCount)
 
-        with open('testGen.yaml', 'w') as f:
+        with open('test-0.yaml', 'w') as f:
             data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
 
         geneLabel1 = tk.Label(second_frame, text='Successfully generated!')
@@ -293,19 +295,25 @@ def browseFiles():
         fileButt.configure(text=tail)
 
 def browseConfFiles():
-    filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
+    filenames = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
                                                   title="Select a File",
+                                                  multiple=True,
                                                   filetypes=(("YAML files",
                                                               "*.yaml*"),))
-    global confile
-    if filename != '':
-        confile = filename
+    global confiles
+    print(filenames)
+    if filenames != '':
+        confiles = filenames
 
-    if filename == emptyTuple:
+    if filenames == emptyTuple:
         fileConfButt.configure(text="Select")
     else:
-        head, tail = os.path.split(confile)
-        fileConfButt.configure(text=tail)
+        head1, tail1 = os.path.split(confiles[0])
+        head2, tail2 = os.path.split(confiles[-1])
+        if len(confiles) == 1:
+            fileConfButt.configure(text=tail1)
+        else:
+            fileConfButt.configure(text=tail1 + '...' + tail2)
 
 def browseLogDir():
     dirname = tkinter.filedialog.askdirectory()
@@ -322,30 +330,42 @@ def browseLogDir():
 
 #TODO: Add exceptions
 def injectFaults():
-    # filename = fileButt.cget('text')
-    # parse_src_import = inCd.addImport(filename)
-    # loglValue = eval(loglCombo.get())
-    # if modeCombo.get()=='Run':
-    #     loglValue = 0
+    filename = fileButt.cget('text')
+    loglValue = 0
 
+    if modeCombo.get() == 'Debug':
+        loglValue = eval(loglCombo.get());
+    else:
+        dirpath = ' '
+
+    parse_src_import = inCd.addImport(filename)
+    parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
+                              testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
+                              nameEntry.get(), fipEntry.get())
     # FIXME:
-    # parse_src_fi = addFi(parse_src_import, 'correct_prediction', {'x': 'X_test', 'y': 'y_test'}, 'lenet-sdcrates.csv',
-    #                      10, 'X_test', 'y_test',
-                         # 'testGen.yaml', "faultLogs/", logging.DEBUG, 'False', 'convolutional', 'fi_')
+    if len(confiles) == 1:
+        exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+    else:
+        with open("Injected-0" + ".py", "w") as f:
+            f.write(astor.to_source(parse_src_fi))
+        arg1 = str(len(confiles))
+        subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
+        subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
+                        env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
 
-    # parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv',int(numFIEntry.get()), testXEntry.get(), testYEntry.get(), confile, dirpath, loglValue, disCombo.get(), nameEntry.get(), fipEntry.get())
+    # exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+
 
     # Execute the parsed code
-    # exec(compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
-    with open('sdcRates.csv', 'r') as csvfile:
-        # creating a csv reader object
-        csvreader = csv.reader(csvfile)
-        sdc = ''
-        for row in csvreader:
-            for col in row:
-                print(col)
-                sdc = col
-    sdcOnceLabel.configure(text = 'SDC rates: '+sdc)
+    # with open('sdcRates.csv', 'r') as csvfile:
+    #    creating a csv reader object
+        # csvreader = csv.reader(csvfile)
+        # sdc = ''
+        # for row in csvreader:
+        #     for col in row:
+        #         print(col)
+        #         sdc = col
+    # sdcOnceLabel.configure(text = 'SDC rates: '+sdc)
 
 
 #-------
@@ -355,6 +375,8 @@ def on_trace_mode(name, index, mode):
 def refresh_mode( ):
     mode = modeCombo.get()
     if mode == 'Run':
+        logdLabel.grid_forget()
+        logdButt.grid_forget()
         loglLabel.grid_forget()
         loglCombo.grid_forget()
         namelabel.grid_forget()
@@ -362,6 +384,8 @@ def refresh_mode( ):
         fiplabel.grid_forget()
         fipEntry.grid_forget()
     else:
+        logdLabel.grid(row=13, column = 0, padx = 5, pady = 5, sticky = 'w')
+        logdButt.grid(row=13, column=1, padx=5, pady=5, sticky='w')
         loglLabel.grid(row=13, column = 2, padx = 5, pady = 5, sticky = 'w')
         loglCombo.grid(row=13, column = 3, padx = 5, pady = 5, sticky = 'w')
         namelabel.grid(row=14, column = 0, padx = 5, pady = 5, sticky = 'w')
@@ -374,10 +398,10 @@ def refresh_mode( ):
 fiTitleLabel = tk.Label(second_frame, text="Fault injection", font = ('Times New Roman', 12, 'bold')).grid(row=10, column=0, padx = 5, pady = 25, sticky = 'w')
 sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row = 11, column = 0, padx = 5, pady = 5, sticky = 'w')
 confLabel = tk.Label(second_frame, text="configFileName:", font = ("Times New Roman", 10)).grid(row=11, column = 2, padx = 5, pady = 5, sticky = 'w')
-logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10)).grid(row=12, column = 0, padx = 5, pady = 5, sticky = 'w')
 disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10)).grid(row=12, column = 2, padx = 5, pady = 5, sticky = 'w')
-modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=13, column = 0, padx = 5, pady = 5, sticky = 'w')
+modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=12, column = 0, padx = 5, pady = 5, sticky = 'w')
 # Debugging mode
+logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10))
 loglLabel = tk.Label(second_frame, text="logLevel:", font = ("Times New Roman", 10))
 # loglLabel.grid(row=13, column=10, padx = 10, pady = 25)
 namelabel = tk.Label(second_frame, text="name:", font = ("Times New Roman", 10))
@@ -392,7 +416,7 @@ disCombo.current(0)
 
 modeVar = tk.StringVar()
 modeCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=modeVar, values=['Run', 'Debug'], width = 8)
-modeCombo.grid(row=13, column = 1, padx = 5, pady = 5, sticky = 'w')
+modeCombo.grid(row=12, column = 1, padx = 5, pady = 5, sticky = 'w')
 modeCombo.current(0)
 modeVar.trace("w", on_trace_mode)
 
@@ -413,7 +437,7 @@ fileButt.grid(row=11, column = 1, padx = 5, pady = 5, sticky = 'w')
 fileConfButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseConfFiles)
 fileConfButt.grid(row=11, column = 3, padx = 5, pady = 5, sticky = 'w')
 logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseLogDir)
-logdButt.grid(row=12, column = 1, padx = 5, pady = 5, sticky = 'w')
+
 
 # -------------------------------
 # Statistics setting

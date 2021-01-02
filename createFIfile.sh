@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+num=${1}
+for ((j=1; j<$num; j++))
+do
+    cp Injected-0.py Injected-"$j".py
+done
+
+for ((j=1; j<$num; j++))
+do
+    sed -i "s/test-0.yaml/test-$j.yaml/g" Injected-"$j".py
+done
+

@@ -208,7 +208,7 @@ def addLoop(Xtest, ytest, sess):
     assi = ast.Assign(aTarg, ast.BinOp(ast.Name('totalSDC', ast.Load()), ast.Div(), ast.BinOp(ast.Num(10.0), ast.Mult(), ast.Name('totalFI', ast.Load()))))
 
     eCargs.append(ast.Name('SDCrates', ast.Load()))
-    exargs.append(ast.Call(ast.Name('str', ast.Load()), eCargs, [], None, None))
+    exargs.append(ast.BinOp(ast.Call(ast.Name('str', ast.Load()), eCargs, [], None, None), ast.Add(), ast.Str(', ')))
     expr = ast.Expr(ast.Call(ast.Attribute(ast.Name('resFile', ast.Load()), 'write', ast.Load()), exargs, [], None, None))
 
     pelts.append(ast.Str('SDC rates: '))
@@ -222,6 +222,8 @@ def addLoop(Xtest, ytest, sess):
     body.append(prit)
 
     return body
+
+
 
 
 # ------------------------------- Add TensorFI init function -----------------------------------
@@ -310,13 +312,10 @@ def addFi(parse_src, # Parsed code
 
 if __name__ == '__main__':
     parse_src_import=addImport('lenet-mnist-no-FI.py')
-    parse_src_fi =addFi(parse_src_import, 'correct_prediction', {'x': 'X_test', 'y': 'y_test'}, 'lenet-sdcrates.csv', 10,'X_test', 'y_test',
-                         'testGen.yaml', "faultLogs/", logging.DEBUG, 'False', 'convolutional', 'fi_')
+    parse_src_fi =addFi(parse_src_import, 'correct_prediction', {'y': 'y_test', 'x': 'X_test'}, 'lenet-sdcrates.csv', 5,'X_test', 'y_test',
+                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml', "/home/elaine/pycharmProjects/yamlTest/faultLogs/", logging.DEBUG, 'False', 'test', 'fi_')
+    with open("Output.py", "w") as f:
+        f.write(astor.to_source(parse_src_fi))
     # Execute the parsed code
     # parse_src_import = ast.parse(open('sample.py').read())
-    # global_env = {}
-    # local_env = {}
-    exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
-    # exec (compile(parse_src_fi, filename="<ast>", mode="exec"),global_env, local_env)
-    # print('global_env'+global_env)
-    # print('local_env'+local_env)
+    # exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
