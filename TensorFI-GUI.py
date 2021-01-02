@@ -12,6 +12,7 @@ import csv
 import numpy as np
 import astor
 import subprocess
+import matplotlib.pyplot as plt
 
 root = tk.Tk()
 root.title('TensorFI')
@@ -330,32 +331,41 @@ def browseLogDir():
 
 #TODO: Add exceptions
 def injectFaults():
-    filename = fileButt.cget('text')
-    loglValue = 0
-
-    if modeCombo.get() == 'Debug':
-        loglValue = eval(loglCombo.get());
-    else:
-        dirpath = ' '
-
-    parse_src_import = inCd.addImport(filename)
-    parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
-                              testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
-                              nameEntry.get(), fipEntry.get())
-    # FIXME:
-    if len(confiles) == 1:
-        exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
-    else:
-        with open("Injected-0" + ".py", "w") as f:
-            f.write(astor.to_source(parse_src_fi))
-        arg1 = str(len(confiles))
-        subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
-        subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
-                        env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
-
-    # exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
-
-
+    # filename = fileButt.cget('text')
+    # loglValue = 0
+    #
+    # if modeCombo.get() == 'Debug':
+    #     loglValue = eval(loglCombo.get());
+    # else:
+    #     dirpath = ' '
+    #
+    # parse_src_import = inCd.addImport(filename)
+    # parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
+    #                           testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
+    #                           nameEntry.get(), fipEntry.get())
+    # # FIXME:
+    # if len(confiles) == 1:
+    #     exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+    # else:
+    #     with open("Injected-0" + ".py", "w") as f:
+    #         f.write(astor.to_source(parse_src_fi))
+    #     arg1 = str(len(confiles))
+    #     subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
+    #     subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
+    #                     env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
+    xList = [0.1, 0.3, 0.1]
+    fLabel = 'LeNet'
+    xLabel = "Error rate (Bit flip element)"
+    yLabel = "SDC rate"
+    fTitle = "SDC rate vs FI error rate"
+    picName = "EB-8-1.png"
+    plot_eb(xList, # Range of X-axis, e.g., xList = [0.1, 0.3, 0.1]
+            fLabel, # Lable of figure
+            xLabel,
+            yLabel,
+            fTitle,
+            picName
+            )
     # Execute the parsed code
     # with open('sdcRates.csv', 'r') as csvfile:
     #    creating a csv reader object
@@ -367,6 +377,20 @@ def injectFaults():
         #         sdc = col
     # sdcOnceLabel.configure(text = 'SDC rates: '+sdc)
 
+def plot_eb(xList, fLabel, xLabel, yLabel, fTitle, picName):
+    x = []
+    for i in np.arange(xList[0], xList[1] + 0.0001, xList[2]):
+        x.append(i)
+    y3 = np.loadtxt('sdcRates.csv', delimiter=', ', unpack=True)
+    fig, ax = plt.subplots()
+    ax.plot(x, y3, label=fLabel)
+    ax.legend()
+    ax.plot()
+    ax.set(xlabel=xLabel, ylabel=yLabel,
+           title=fTitle)
+    ax.grid()
+
+    fig.savefig(picName)
 
 #-------
 # Callback function
