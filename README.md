@@ -5,4 +5,5 @@ UNIX platform with Tensorflow v1
 You have to install [TensorFI](https://github.com/DependableSystemsLab/TensorFI) first. See **2. Dependencies** and **3. Installation Instructions** in TensorFI homepage.
 ## 3. Usage Guide
 TensorFI-GUI is shown as follows:
-![image]()
+
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/TensorFI-GUI-interface.png)
