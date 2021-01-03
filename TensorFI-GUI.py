@@ -331,51 +331,48 @@ def browseLogDir():
 
 #TODO: Add exceptions
 def injectFaults():
-    # filename = fileButt.cget('text')
-    # loglValue = 0
-    #
-    # if modeCombo.get() == 'Debug':
-    #     loglValue = eval(loglCombo.get());
-    # else:
-    #     dirpath = ' '
-    #
-    # parse_src_import = inCd.addImport(filename)
-    # parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
-    #                           testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
-    #                           nameEntry.get(), fipEntry.get())
-    # # FIXME:
-    # if len(confiles) == 1:
-    #     exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
-    # else:
-    #     with open("Injected-0" + ".py", "w") as f:
-    #         f.write(astor.to_source(parse_src_fi))
-    #     arg1 = str(len(confiles))
-    #     subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
-    #     subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
-    #                     env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
-    xList = [0.1, 0.3, 0.1]
-    fLabel = 'LeNet'
-    xLabel = "Error rate (Bit flip element)"
-    yLabel = "SDC rate"
-    fTitle = "SDC rate vs FI error rate"
-    picName = "EB-8-1.png"
-    plot_eb(xList, # Range of X-axis, e.g., xList = [0.1, 0.3, 0.1]
-            fLabel, # Lable of figure
-            xLabel,
-            yLabel,
-            fTitle,
-            picName
-            )
+    filename = fileButt.cget('text')
+    loglValue = 0
+
+    if modeCombo.get() == 'Debug':
+        loglValue = eval(loglCombo.get());
+    else:
+        dirpath = ' '
+
+    parse_src_import = inCd.addImport(filename)
+    parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
+                              testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
+                              nameEntry.get(), fipEntry.get())
+    # FIXME:
+    if len(confiles) == 1:
+        exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+    else:
+        with open("Injected-0" + ".py", "w") as f:
+            f.write(astor.to_source(parse_src_fi))
+        arg1 = str(len(confiles))
+        subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
+        subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
+                        env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
+
+    # 不想直接画图，因为用户可以拿数据自己画
+    # xList = [0.1, 0.3, 0.1]
+    # fLabel = 'LeNet'
+    # xLabel = "Error rate (Bit flip element)"
+    # yLabel = "SDC rate"
+    # fTitle = "SDC rate vs FI error rate"
+    # picName = "EB-8-1.png"
+    # plot_eb(xList, # Range of X-axis, e.g., xList = [0.1, 0.3, 0.1]
+    #         fLabel, # Lable of figure
+    #         xLabel,
+    #         yLabel,
+    #         fTitle,
+    #         picName
+    #         )
+
     # Execute the parsed code
-    # with open('sdcRates.csv', 'r') as csvfile:
-    #    creating a csv reader object
-        # csvreader = csv.reader(csvfile)
-        # sdc = ''
-        # for row in csvreader:
-        #     for col in row:
-        #         print(col)
-        #         sdc = col
-    # sdcOnceLabel.configure(text = 'SDC rates: '+sdc)
+
+    sdc = np.loadtxt('sdcRates.csv', delimiter=', ', unpack=True)
+    sdcOnceLabel.configure(text = 'SDC rates: '+str(sdc))
 
 def plot_eb(xList, fLabel, xLabel, yLabel, fTitle, picName):
     x = []
