@@ -208,7 +208,7 @@ def addLoop(Xtest, ytest, sess):
     assi = ast.Assign(aTarg, ast.BinOp(ast.Name('totalSDC', ast.Load()), ast.Div(), ast.BinOp(ast.Num(10.0), ast.Mult(), ast.Name('totalFI', ast.Load()))))
 
     eCargs.append(ast.Name('SDCrates', ast.Load()))
-    exargs.append(ast.BinOp(ast.Call(ast.Name('str', ast.Load()), eCargs, [], None, None), ast.Add(), ast.Str(', ')))
+    exargs.append(ast.BinOp(ast.Call(ast.Name('str', ast.Load()), eCargs, [], None, None), ast.Add(), ast.Str('\n')))
     expr = ast.Expr(ast.Call(ast.Attribute(ast.Name('resFile', ast.Load()), 'write', ast.Load()), exargs, [], None, None))
 
     pelts.append(ast.Str('SDC rates: '))

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 root = tk.Tk()
 root.title('TensorFI')
-root.geometry('890x700')
+root.geometry('890x650')
 
 main_frame = tk.Frame(root)
 main_frame.pack(fill=tk.BOTH, expand=1)
@@ -331,6 +331,7 @@ def browseLogDir():
 
 #TODO: Add exceptions
 def injectFaults():
+    fiButt.configure(text = 'Injecting')
     filename = fileButt.cget('text')
     loglValue = 0
 
@@ -354,24 +355,9 @@ def injectFaults():
         subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
                         env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
 
-    # 不想直接画图，因为用户可以拿数据自己画
-    # xList = [0.1, 0.3, 0.1]
-    # fLabel = 'LeNet'
-    # xLabel = "Error rate (Bit flip element)"
-    # yLabel = "SDC rate"
-    # fTitle = "SDC rate vs FI error rate"
-    # picName = "EB-8-1.png"
-    # plot_eb(xList, # Range of X-axis, e.g., xList = [0.1, 0.3, 0.1]
-    #         fLabel, # Lable of figure
-    #         xLabel,
-    #         yLabel,
-    #         fTitle,
-    #         picName
-    #         )
-
     # Execute the parsed code
 
-    sdc = np.loadtxt('sdcRates.csv', delimiter=', ', unpack=True)
+    sdc = np.loadtxt('sdcRates.csv', delimiter='\n', unpack=True)
     sdcOnceLabel.configure(text = 'SDC rates: '+str(sdc))
 
 def plot_eb(xList, fLabel, xLabel, yLabel, fTitle, picName):
