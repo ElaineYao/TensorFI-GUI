@@ -73,33 +73,38 @@ Represents the probability that a fault will be injected into that particular op
   
   Example:
   
-  If the user want to add ABSOLUTE operation and ADD operation.
+  If the user want to add ABSOLUTE operation and ADD operation. 
   
    ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
   
-   ![image]()
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob_Right.png)
+   
+   The above setting works.
    
    However, this following **doesn't work** as the range(0.1, 0.6, 0.1) will generate 6 YAML files, while the range(0.2, 0.6, 0.1) only generates 5 YAML files.
    
    ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
    
-   ![image]()
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob_Wrong.png)
    
   
-- **Instances:**
-- **Number:**
-- **Seed:**
-- **SkipCount:**
-
+- **Instances:** Shares the same operations as *Operations*. Each operation coincides with a number representing the *Number* of instances it occurs in a given model. This is used when InjectMode is "dynamicInstance". The sum of all these numbers is used when InjectMode is "oneFaultPerRun".
+- **Number:** Each operation coincides with a number representing the *Number* of instances it occurs in a given model. 
+- **Seed:** Seed the randomness of the fault injection. Fault injection will be random if unspecified. The default value is 1000.
+- **SkipCount:** Representing the number of operations to skip at the beginning of the program before beginning injecting fault. The default value is 0.
 ### 4.3 Part 2 - Fault injection
-- **Source file:**
-- **configFileName:**
+- **Source file:** The path of the ML program to be injected. User can choose it by *Select* button.
+- **configFileName:** The path of the configuration file(s), i.e., `test-x.yaml`. User can choose it by *Select* button, which supports selecting multiple files by clicking with *Ctrl*.
 - **Mode:**
-- **disableInjection:**
-- **logDir:**
-- **logLevel:**
-- **name:**
-- **fiPrefix:**
+  - Run: Choose it when user don't care about the logfiles.
+  - Debug: This is helpful when user wants to get the logfiles for debugging. When in 'Debug' mode, four other fields have to be completed, i.e., *logDir*, *logLevel*, *name*, *fiPrefix*.
+- **disableInjection:** 
+  - True: Disable fault injections
+  - False: The default value is False, and hence injections are enabled.
+- **logDir:** Log directory for the Fault log. 
+- **logLevel:** Logging level {DEBUG=10, INFO=20, ERROR=30}
+- **name:** Each fault injector is optionally assigned a name string, which is used in debug logging. 
+- **fiPrefix:** This is the prefix to attach to all fault injection nodes inserted by TensorFI, for easy identification in the graph (e.g., with TensorBoard). 
 
 ### 4.4 Part 3 - Statistics settings:
 - **Correct Prediction:**
