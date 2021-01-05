@@ -3,12 +3,16 @@
 UNIX platform with Tensorflow v1
 ## 2. Dependencies
 You have to install [TensorFI](https://github.com/DependableSystemsLab/TensorFI) first. See **2. Dependencies** and **3. Installation Instructions** in TensorFI homepage.
-## 3. Usage Guide
+## 3. Download
+
+TODO
+
+## 4. Usage Guide
 TensorFI-GUI is shown as follows:
 
 ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/TensorFI-GUI-interface.png)
 
-### Steps:
+### 4.1 Steps:
 
 1. Have a trained ML program( as this saves time during injections). 
 2. Fill in part 1 - **Configuration** for FI(fault injection) setting. 
@@ -21,19 +25,51 @@ TensorFI-GUI is shown as follows:
 
 Detailed explanation for each field is as follows:
 
-### Part 1 - Configuration
-- **InjectMode:**
+### 4.2 Part 1 - Configuration
+- **InjectMode:** 
+  - errorRate: Uses the error rate specified in *Probability* to determine which operations are injected with faults
+  - dynamicInstance: Injects each operation type in the program once
+  - oneFaultPerRun: Perform one random injection per run
+  
+  *Note:* When InjectMode is *errorRate*, *Instances* and *Number* fields are disabled. When InjectMode is *dynamicInstance* or *oneFaultPerRun*, *Ops* and *Probability* fields are disabled.
+
+
 - **Mode:**
+  - Single: User only wants to generate one configuration file.
+  - Multiple: User can set the range of *Probability* and get several YAML file. This is useful when user wants to generate a bunch of configfiles with different errorrate(*Probability*) in errorRate InjectMode to get statistic figure.
 - **ScalarFaultType:**
-- **TensorFaultType:**
-- **Ops:**
-- **Probability:**
+  - None: Does not inject fault
+  - Rand: Shuffle all the data items in the output of the target op into random values
+  - Zero: Change the value into all zeros
+  - Rand-element: Shuffle one of the data item in the output of the target op into random value
+  - bitFlip-element: Single bit-flip over one data item in the output of the target op
+  - bitFlip-tensor: Single bit-flip over all data items in the output of the target op
+  
+- **TensorFaultType:** Same as *ScalarFaultType*
+- **Operations:** For now, the supported operations include: 
+
+'ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
+                                                                        'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
+                                                                        'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
+                                                                        'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'
+
+Each operation coincides with a probability. This is used for the errorRate inject mode, where the probability represents the probability that a fault will be injected into that particular operation. This is used when InjectMode is "errorRate".
+
+
+- **Probability:** 
+Represents the probability that a fault will be injected into that particular operation.
+  - Only one blank available: This is when *Mode* is set Single. One Probability corresponds with one Operation.
+  - Three blanks available: This is when *Mode* is set Multiple. One Operation corresponds with a list of Probability. The 1st blank(from left to right) is for start value, the 2nd blank is for end value and the 3rd blank is for step value.
+  Example: 
+  `Operations:Probability: 0.1 0.6 0.1`
+  ![image]()
+  
 - **Instances:**
 - **Number:**
 - **Seed:**
 - **SkipCount:**
 
-### Part 2 - Fault injection
+### 4.3 Part 2 - Fault injection
 - **Source file:**
 - **configFileName:**
 - **Mode:**
@@ -43,7 +79,7 @@ Detailed explanation for each field is as follows:
 - **name:**
 - **fiPrefix:**
 
-### Part 3 - Statistics settings:
+### 4.4 Part 3 - Statistics settings:
 - **Correct Prediction:**
 - **Number of injections:**
 - **Feed key:**
@@ -51,7 +87,7 @@ Detailed explanation for each field is as follows:
 - **Test set(X):**
 - **Test set(Y):**
 
-### Part 4 - Results
+### 4.5 Part 4 - Results
 - **SDC rates:**
 
 
