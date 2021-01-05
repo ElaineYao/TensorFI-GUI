@@ -183,7 +183,7 @@ def refresh( ):
 # Parameters Part
 #Labels
 # FIXME: How to align  'Parameters' with 'ScalarFaultType' - Beautify the GUI
-paraTitlelabel = tk.Label(second_frame, text="YAML File Parameters", font = ('Times New Roman', 12, 'bold')).grid(row=0, column=0, padx = 5, pady = 25, sticky = 'w')
+paraTitlelabel = tk.Label(second_frame, text="Configuration", font = ('Times New Roman', 12, 'bold')).grid(row=0, column=0, padx = 5, pady = 25, sticky = 'w')
 
 
 injectLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="InjectMode: ")\
@@ -194,7 +194,7 @@ scalarLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Scala
                     .grid(row = 6, column = 0, padx = 5, pady = 5, sticky = 'w')
 tensorLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="TensorFaultType: ")\
                     .grid(row = 6, column = 2, padx = 5, pady = 5, sticky = 'w')
-opsLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Ops: ")\
+opsLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Operations: ")\
                     .grid(row = 7, column = 0, padx = 5, pady = 5, sticky = 'w')
 ProbLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Probability: ")\
                     .grid(row = 7, column = 2, padx = 5, pady = 5, sticky = 'w')
@@ -261,11 +261,11 @@ insEntry.grid(row=8, column = 3, sticky = 'w')
 seedText = tk.StringVar()
 seedEntry = tk.Entry(second_frame,width = 8, bd=3,textvariable=seedText)
 seedEntry.grid(row=9, column=1, sticky = 'w')
-seedText.set(100000)
+seedText.set(1000)
 skipText = tk.StringVar()
 skipEntry = tk.Entry(second_frame,width = 8,bd=3,textvariable=skipText)
 skipEntry.grid(row=9, column=3, sticky = 'w')
-skipText.set(1)
+skipText.set(0)
 
 # Button - Click to generate default.yaml file
 opButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addOp)
@@ -391,6 +391,7 @@ def refresh_mode( ):
         fiplabel.grid_forget()
         fipEntry.grid_forget()
     else:
+        # TODO: The default value is "noName". The default value is "fi_"
         logdLabel.grid(row=13, column = 0, padx = 5, pady = 5, sticky = 'w')
         logdButt.grid(row=13, column=1, padx=5, pady=5, sticky='w')
         loglLabel.grid(row=13, column = 2, padx = 5, pady = 5, sticky = 'w')
