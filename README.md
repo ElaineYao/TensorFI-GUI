@@ -60,9 +60,31 @@ Each operation coincides with a probability. This is used for the errorRate inje
 Represents the probability that a fault will be injected into that particular operation.
   - Only one blank available: This is when *Mode* is set Single. One Probability corresponds with one Operation.
   - Three blanks available: This is when *Mode* is set Multiple. One Operation corresponds with a list of Probability. The 1st blank(from left to right) is for start value, the 2nd blank is for end value and the 3rd blank is for step value.
+  
   Example: 
-  `Operations:Probability: 0.1 0.6 0.1`
-  ![image]()
+  
+  ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
+  
+  Then user can get 6 YAML files named with *test-x.yaml*, in which the ABSOLUTE operation is 0.1, 0.2, 0.3, 0.4, 0.5, 0.6 respectively, so that the user can analyze the SDC rates under operations with increasing probability.
+  
+  *Note:* 
+  1. For **each** operation with certain probability(ies), user must click *Add* button. 
+  2. When *Mode* is *Multiple*, make sure for each operation, the number of Probability(i.e., the number of YAML files generated) must be the same.
+  
+  Example:
+  
+  If the user want to add ABSOLUTE operation and ADD operation.
+  
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
+  
+   ![image]()
+   
+   However, this following **doesn't work** as the range(0.1, 0.6, 0.1) will generate 6 YAML files, while the range(0.2, 0.6, 0.1) only generates 5 YAML files.
+   
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
+   
+   ![image]()
+   
   
 - **Instances:**
 - **Number:**
