@@ -107,10 +107,44 @@ Represents the probability that a fault will be injected into that particular op
 - **fiPrefix:** This is the prefix to attach to all fault injection nodes inserted by TensorFI, for easy identification in the graph (e.g., with TensorBoard). 
 
 ### 4.4 Part 3 - Statistics settings:
-- **Correct Prediction:**
-- **Number of injections:**
-- **Feed key:**
-- **Feed value:**
+- **Correct Prediction:** Name of the array that records the boolean values by comparing the true label with the predicted label in test set. 
+
+  Example: `correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))`
+  
+  where `tf.argmax(logits, 1)` represents the index of label(i.e., value of handwriting number) with the greatest probability during prediction, while `tf.argmax(one_hot_y, 1)` is the index of true label.
+
+  If the value of correct_pred is `(True, True, False, True, ....)`, then we know that the model correctly predicts the 1st, 2nd and 4th image but fails to predict the 3rd one. 
+
+  Here we should fill `correct_pred` in **Correct Prediction**.
+
+- **Number of injections:** *SDC rates* in Part 4 are reported after lots of repeated injections, say 1000 or even 10000 and more. *Note* that since we will randomly choose 10 inputs in test sets for injection, the **actual** number of injections is *10 times* as the user fill in. If the user want 10000 injections, they need to fill in 1000 in the blank.
+- **Feed key:** Refers to the *key* of *feed_dict* required in variable of **Correct Prediction**. Each *Feed key* coincides with a *Feed value*. 
+
+  Example: 
+  ```
+  # Neural network model
+  ...
+  # x is the input to NN, y is the gold standard data(correct output)
+  one_hot_y = tf.one_hot(y, 10)
+  logits = LeNet(x)
+  ...
+  correct_pred = tf.equal(tf.argmax(logits, 1), tf.argmax(one_hot_y, 1))
+  ```
+  If users want to call `correct_pred`, they should write `correct = sess.run(correct_pred, feed_dict={y: y_test, x: X_test})`.
+  
+  There are two keys in the dictionary, i.e., `x` and `y`. 
+  
+  *Note*: User has to click *Add* button *every time* they want to add a key-value pair, which is similar to add Operations-Probability pair.
+
+- **Feed value:** In the above case, there are two corresponding values, i.e., `y_test` and `X_test`.
+
+  Demo: 
+  
+  To add the above key-value pairs
+  
+  
+  *Note*: The add order doesn't matter.
+  
 - **Test set(X):**
 - **Test set(Y):**
 
