@@ -294,6 +294,7 @@ def browseFiles():
     else:
         head, tail = os.path.split(sourcefile)
         fileButt.configure(text=tail)
+    print(sourcefile)
 
 def browseConfFiles():
     filenames = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
@@ -332,7 +333,6 @@ def browseLogDir():
 #TODO: Add exceptions
 def injectFaults():
     fiButt.configure(text = 'Injecting')
-    filename = fileButt.cget('text')
     loglValue = 0
 
     if modeCombo.get() == 'Debug':
@@ -340,7 +340,7 @@ def injectFaults():
     else:
         dirpath = ' '
 
-    parse_src_import = inCd.addImport(filename)
+    parse_src_import = inCd.addImport(sourcefile)
     parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
                               testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
                               nameEntry.get(), fipEntry.get())

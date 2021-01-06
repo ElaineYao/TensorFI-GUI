@@ -139,11 +139,13 @@ def evaluate(X_data, y_data):
 #         validation_accuracy = evaluate(X_validation, y_validation)
 #         print("EPOCH {} ...".format(i+1))
 #         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-#     saver.save(sess, './lenet')
+#     saver.save(sess, './lenet-checkpoint/lenet')
 #     print("Model saved")
 
 with tf.Session() as sess:
-    saver.restore(sess, tf.train.latest_checkpoint('..'))
+    # Must use absolute path here
+    saver.restore(sess, tf.train.latest_checkpoint('/home/elaine/pycharmProjects/yamlTest/Tests/lenet-checkpoint/'))
+
     test_accuracy = evaluate(X_test, y_test)
     print("Accuracy (with no injections): {:.3f}".format(test_accuracy))
 
