@@ -135,6 +135,7 @@ def addSDC(filename, totFI, Xtest, ytest):
 
     return body
 
+# FIXME: Randomly choose 10 images rather than choose the first 10 images.
 # ------------------- Add for loop to calculate SDC -------------------------
 # `    for i in range(10):
 #         SDC = 0
