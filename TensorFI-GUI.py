@@ -294,7 +294,6 @@ def browseFiles():
     else:
         head, tail = os.path.split(sourcefile)
         fileButt.configure(text=tail)
-    print(sourcefile)
 
 def browseConfFiles():
     filenames = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
@@ -303,7 +302,6 @@ def browseConfFiles():
                                                   filetypes=(("YAML files",
                                                               "*.yaml*"),))
     global confiles
-    print(filenames)
     if filenames != '':
         confiles = filenames
 
@@ -434,9 +432,13 @@ loglCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=[1
 loglCombo.current(0)
 
 # Entry
-nameEntry = tk.Entry(second_frame,bd=3, width = 8)
+nameText = tk.StringVar()
+nameEntry = tk.Entry(second_frame,bd=3, width = 8,textvariable=nameText)
+nameText.set('noname')
 # nameEntry.grid(row=14, column=5)
-fipEntry = tk.Entry(second_frame,bd=3, width = 8)
+fipText = tk.StringVar()
+fipEntry = tk.Entry(second_frame,bd=3, width = 8, textvariable=fipText)
+fipText.set('fi_')
 # fipEntry.grid(row=14, column=15)
 
 # Button
