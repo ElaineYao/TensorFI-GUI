@@ -10,7 +10,7 @@ TODO
 ## 4. Usage Guide
 TensorFI-GUI is shown as follows:
 
-![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/TensorFI-GUI-interface.png)
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Interface.png)
 
 ### 4.1 Steps:
 
@@ -75,15 +75,15 @@ Represents the probability that a fault will be injected into that particular op
   
   If the user want to add ABSOLUTE operation and ADD operation. 
   
-   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png) Click *Add* button
   
-   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob_Right.png)
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob_Right.png) Click *Add* button
    
    The above setting works.
    
    However, this following **doesn't work** as the range(0.1, 0.6, 0.1) will generate 6 YAML files, while the range(0.2, 0.6, 0.1) only generates 5 YAML files.
    
-   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png)
+   ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob.png) 
    
    ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Ops%26Prob_Wrong.png)
    
@@ -142,14 +142,31 @@ Represents the probability that a fault will be injected into that particular op
   
   To add the above key-value pairs
   
+  ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/key-pair1.png)
+  Click *Add* button
+  ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/key-pair2.png)
+  Click *Add* button
   
-  *Note*: The add order doesn't matter.
+  *Note*: The order of add operation doesn't matter.
   
-- **Test set(X):**
-- **Test set(Y):**
+- **Test set(X):** Input variable name in test set. 
+
+  Example: `X_test, y_test = mnist.test.images[:256], mnist.test.labels[:256]`
+  
+  Here `X_test` is the *Test set(X)* and `y_test` is the *Test set(Y)*
+
+- **Test set(Y):** Output variable name in test set.
+
+  Example: 
+  
+  ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Test%20x%26y.png)
+  
+  You are almost done!
+  
+  Click *Inject* button and wait for the *SDC rates* in Part 4!
+  
 
 ### 4.5 Part 4 - Results
-- **SDC rates:**
-
+- **SDC rates:** SDC is short for Silent Data Corruption. We consider SDC rate as the metric for evaluating the resilience of ML applications. An SDC is a wrong output that deviates from the expected output of the program. SDC rate is the fraction of the injected faults that result in SDCs. For classifier applications, an SDC is any misclassification.
 
 The project is still in progess.
