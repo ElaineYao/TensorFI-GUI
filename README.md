@@ -14,7 +14,10 @@ TensorFI-GUI is shown as follows:
 
 ### 4.1 Steps:
 
-1. Have a trained ML program( as this saves time during injections). 
+1. Have a trained ML program( as this saves time during injections).
+
+ *Note:* make sure that the model is restored from the *absolute* path of the checkpoint files.
+ 
 2. Fill in part 1 - **Configuration** for FI(fault injection) setting. 
 3. Click the *Generate* button to get a(/some) YAML file(s) named with *test-x.yaml*, i.e., configFile. 
 3. In part 2 - **Fault injection**, select the ML program and configFile(s), i.e., YAML file(s) generated in part 1. Two mode are provided, i.e., *Run* and *Debug*, and the latter allows user to get the FI log files. 
