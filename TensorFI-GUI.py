@@ -170,14 +170,20 @@ def refresh( ):
             opsEntry2.config(state="disabled")
             opsEntry3.config(state="disabled")
     else:
-        opsCombo.configure(state="disabled")
-        opsEntry.config(state='disabled')
-        opsEntry2.config(state='disabled')
-        opsEntry3.config(state='disabled')
-        opButt.config(state='disabled')
-        insCombo.config(state='normal')
+        # Both operations and Instances settings are enabled under dynamicInstance and oneFaultPerRun mode
+        opsCombo.configure(state="normal")
+        opsEntry.config(state='normal')
+        opButt.config(state='normal')
+        insCombo.configure(state='normal')
         insEntry.config(state='normal')
         insButt.config(state='normal')
+        if modeCombo2.get() == 'Multiple':
+            opsEntry2.config(state="normal")
+            opsEntry3.config(state="normal")
+        else:
+            opsEntry2.config(state="disabled")
+            opsEntry3.config(state="disabled")
+
 
 #--------------
 # Parameters Part
@@ -452,10 +458,31 @@ logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select",
 # -------------------------------
 # Statistics setting
 
+# Check date type in Entry
+def check(entry):
+    try:
+        int(entry.get())
+        print(int(entry.get()))
+        return int(entry.get())
+    except ValueError:
+        try:
+            float(entry.get())
+            print(float(entry.get()))
+            return float(entry.get())
+        except ValueError:
+            try:
+                str(entry.get())
+                print(str(entry.get()))
+                return str(entry.get())
+            except ValueError:
+                print('Data type not support.')
+
+
 # Generate feed_dict
 Dict = {}
 def addDict():
     key = feedKeyEntry.get()
+    # value = check(feedValEntry)
     value = feedValEntry.get()
     Dict[key] = value
     feedLabel1 = tk.Label(second_frame, text='Successfully added!')
