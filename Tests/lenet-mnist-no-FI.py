@@ -145,7 +145,6 @@ def evaluate(X_data, y_data):
 with tf.Session() as sess:
     # Must use absolute path here
     saver.restore(sess, tf.train.latest_checkpoint('/home/elaine/pycharmProjects/yamlTest/Tests/lenet-checkpoint/'))
-
     test_accuracy = evaluate(X_test, y_test)
     print("Accuracy (with no injections): {:.3f}".format(test_accuracy))
 

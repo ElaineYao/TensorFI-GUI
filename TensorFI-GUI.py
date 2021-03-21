@@ -13,6 +13,7 @@ import numpy as np
 import astor
 import subprocess
 import matplotlib.pyplot as plt
+import shutil
 
 root = tk.Tk()
 root.title('TensorFI')
@@ -62,7 +63,18 @@ def generateYaml():
         if skipCount != '':
             paramsDict['SkipCount'] = int(skipCount)
 
-        with open('test-0.yaml', 'w') as f:
+        # with open('test-0.yaml', 'w') as f:
+        #     data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
+
+        yamldir = os.path.join(os.getcwd(), 'configYAML')
+        if os.path.exists(yamldir):
+            shutil.rmtree(yamldir)
+            os.mkdir(yamldir)
+        else:
+            os.mkdir(yamldir)
+        yamlFile = yamldir + '/conf-0.yaml'
+        print(yamlFile)
+        with open(yamlFile, 'w') as f:
             data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
 
         geneLabel1 = tk.Label(second_frame, text='Successfully generated!')
@@ -95,6 +107,13 @@ def generateYaml():
                 finEaList.append(ele)
             finList.append(finEaList)
 
+        yamldir = os.path.join(os.getcwd(), 'configYAML')
+        if os.path.exists(yamldir):
+            shutil.rmtree(yamldir)
+            os.mkdir(yamldir)
+        else:
+            os.mkdir(yamldir)
+
         for i in range(numFile):
             seed = seedEntry.get()
             scalarFaultType = scalarCombo.get()
@@ -116,7 +135,8 @@ def generateYaml():
                 paramsDict['Seed'] = int(seed)
             if skipCount != '':
                 paramsDict['SkipCount'] = int(skipCount)
-            yamlFile = 'test-'+str(i)+'.yaml'
+
+            yamlFile = yamldir+'/conf-'+str(i)+'.yaml'
             with open(yamlFile, 'w') as f:
                 data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
 
@@ -149,7 +169,7 @@ def addIns():
     insLabel1.after(1000, insLabel1.destroy)
 
 # ------------------------
-# Callback function
+# Callback function1
 
 def on_trace_choice(name, index, mode):
     refresh()
@@ -184,107 +204,35 @@ def refresh( ):
             opsEntry2.config(state="disabled")
             opsEntry3.config(state="disabled")
 
+# -------------------
+# Callback function2
+def on_trace_mode(name, index, mode):
+    refresh_mode()
+def refresh_mode( ):
+    mode = modeCombo.get()
+    if mode == 'Run':
+        disLabel.grid_forget()
+        disCombo.grid_forget()
+        logdLabel.grid_forget()
+        logdButt.grid_forget()
+        loglLabel.grid_forget()
+        loglCombo.grid_forget()
+        namelabel.grid_forget()
+        nameEntry.grid_forget()
+        fiplabel.grid_forget()
+        fipEntry.grid_forget()
+    else:
+        disLabel.grid(row=11,column=0,padx=5, pady=5,sticky='w')
+        disCombo.grid(row=11, column=1, padx=5, pady=5, sticky='w')
+        logdLabel.grid(row=12, column = 0, padx = 5, pady = 5, sticky = 'w')
+        logdButt.grid(row=12, column=1, padx=5, pady=5, sticky='w')
+        loglLabel.grid(row=11, column = 2, padx = 5, pady = 5, sticky = 'w')
+        loglCombo.grid(row=11, column = 3, padx = 5, pady = 5, sticky = 'w')
+        namelabel.grid(row=13, column = 0, padx = 5, pady = 5, sticky = 'w')
+        nameEntry.grid(row=13, column = 1, padx = 5, pady = 5, sticky = 'w')
+        fiplabel.grid(row=12, column = 2, padx = 5, pady = 5, sticky = 'w')
+        fipEntry.grid(row=12, column = 3, padx = 5, pady = 5, sticky = 'w')
 
-#--------------
-# Parameters Part
-#Labels
-# FIXME: How to align  'Parameters' with 'ScalarFaultType' - Beautify the GUI
-paraTitlelabel = tk.Label(second_frame, text="Configuration", font = ('Times New Roman', 12, 'bold')).grid(row=0, column=0, padx = 5, pady = 25, sticky = 'w')
-
-
-injectLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="InjectMode: ")\
-                    .grid(row = 5, column = 0, padx = 5, pady = 5, sticky = 'w')
-modeLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Mode: ")\
-                    .grid(row = 5, column = 2, padx = 5, pady = 5, sticky = 'w')
-scalarLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
-                    .grid(row = 6, column = 0, padx = 5, pady = 5, sticky = 'w')
-tensorLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="TensorFaultType: ")\
-                    .grid(row = 6, column = 2, padx = 5, pady = 5, sticky = 'w')
-opsLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Operations: ")\
-                    .grid(row = 7, column = 0, padx = 5, pady = 5, sticky = 'w')
-ProbLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Probability: ")\
-                    .grid(row = 7, column = 2, padx = 5, pady = 5, sticky = 'w')
-# ops2Label = tk.Label(second_frame, font = ("Times New Roman", 10), text=": ")\
-#                     .grid(row = 7, column = 4)
-# ops3Label = tk.Label(second_frame, font = ("Times New Roman", 10), text=": ")\
-#                     .grid(row = 7, column = 5, sticky = 'w')
-insLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Instances: ")\
-                    .grid(row = 8, column = 0, padx = 5, pady = 5, sticky = 'w')
-numLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Number: ")\
-                    .grid(row = 8, column = 2, padx = 5, pady = 5, sticky = 'w')
-seedLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Seed: ")\
-                    .grid(row = 9, column = 0, padx = 5, pady = 5, sticky = 'w')
-skipLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="SkipCount: ")\
-                    .grid(row = 9, column = 2, padx = 5, pady = 5, sticky = 'w')
-
-# Combobox
-choiceVar = tk.StringVar()
-injectCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar, values=['errorRate', 'dynamicInstance', 'oneFaultPerRun'])
-injectCombo.grid(row=5, column=1, sticky = 'w')
-injectCombo.current(0)
-choiceVar.trace("w", on_trace_choice)
-
-choiceVar2 = tk.StringVar()
-modeCombo2 = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar2, values=['Single', 'Multiple'])
-modeCombo2.grid(row=5, column=3, sticky = 'w')
-modeCombo2.current(0)
-choiceVar2.trace("w", on_trace_choice)
-
-
-scalarCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
-scalarCombo.grid(row=6, column=1, sticky = 'w')
-scalarCombo.current(0)
-
-tensorCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
-tensorCombo.grid(row=6, column=3, sticky = 'w')
-tensorCombo.current(4)
-
-opsCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
-                                                                        'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
-                                                                        'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
-                                                                        'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'])
-opsCombo.grid(row=7, column=1, sticky = 'w')
-opsCombo.current(0)
-
-insCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
-                                                                        'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
-                                                                        'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
-                                                                        'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'], state="disabled")
-insCombo.grid(row=8, column=1, sticky = 'w')
-insCombo.current(0)
-
-
-# Entry - Enter the value
-opsEntry = tk.Entry(second_frame, bd=3, width = 5)
-opsEntry.grid(row=7, column = 3, sticky = 'w')
-opsEntry2 = tk.Entry(second_frame, bd=3, width = 5, state="disabled")
-opsEntry2.grid(row=7, column = 3)
-opsEntry3 = tk.Entry(second_frame, bd=3,width = 5, state="disabled")
-opsEntry3.grid(row=7, column = 3, sticky = 'e')
-opsEntry.focus()
-insEntry = tk.Entry(second_frame,width = 8, bd=5, state="disabled")
-insEntry.grid(row=8, column = 3, sticky = 'w')
-seedText = tk.StringVar()
-seedEntry = tk.Entry(second_frame,width = 8, bd=3,textvariable=seedText)
-seedEntry.grid(row=9, column=1, sticky = 'w')
-seedText.set(1000)
-skipText = tk.StringVar()
-skipEntry = tk.Entry(second_frame,width = 8,bd=3,textvariable=skipText)
-skipEntry.grid(row=9, column=3, sticky = 'w')
-skipText.set(0)
-
-# Button - Click to generate default.yaml file
-opButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addOp)
-opButt.grid(row=7, column=4)
-insButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addIns, state="disabled")
-insButt.grid(row=8, column=4)
-geneButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Generate", command=generateYaml).grid(row=9, column=4)
-
-
-
-#------------------------
-# Fault injection
-emptyTuple = ()
 # BrowseFiles
 def browseFiles():
     filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
@@ -334,6 +282,136 @@ def browseLogDir():
 
 
 
+#--------------
+# Parameters Part
+#Labels
+# FIXME: How to align  'Parameters' with 'ScalarFaultType' - Beautify the GUI
+paraTitlelabel = tk.Label(second_frame, text="Configuration", font = ('Times New Roman', 12, 'bold')).grid(row=0, column=0, padx = 5, pady = 25, sticky = 'w')
+
+
+injectLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="InjectMode: ")\
+                    .grid(row = 5, column = 0, padx = 5, pady = 5, sticky = 'w')
+modeLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Mode: ")\
+                    .grid(row = 5, column = 2, padx = 5, pady = 5, sticky = 'w')
+scalarLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
+                    .grid(row = 6, column = 0, padx = 5, pady = 5, sticky = 'w')
+tensorLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="TensorFaultType: ")\
+                    .grid(row = 6, column = 2, padx = 5, pady = 5, sticky = 'w')
+opsLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Operations: ")\
+                    .grid(row = 7, column = 0, padx = 5, pady = 5, sticky = 'w')
+ProbLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Probability: ")\
+                    .grid(row = 7, column = 2, padx = 5, pady = 5, sticky = 'w')
+# ops2Label = tk.Label(second_frame, font = ("Times New Roman", 10), text=": ")\
+#                     .grid(row = 7, column = 4)
+# ops3Label = tk.Label(second_frame, font = ("Times New Roman", 10), text=": ")\
+#                     .grid(row = 7, column = 5, sticky = 'w')
+insLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Instances: ")\
+                    .grid(row = 8, column = 0, padx = 5, pady = 5, sticky = 'w')
+numLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Number: ")\
+                    .grid(row = 8, column = 2, padx = 5, pady = 5, sticky = 'w')
+seedLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Seed: ")\
+                    .grid(row = 9, column = 0, padx = 5, pady = 5, sticky = 'w')
+skipLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="SkipCount: ")\
+                    .grid(row = 9, column = 2, padx = 5, pady = 5, sticky = 'w')
+sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row = 10, column = 0, padx = 5, pady = 5, sticky = 'w')
+modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=10, column = 2, padx = 5, pady = 5, sticky = 'w')
+# Debugging mode
+disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10))
+logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10))
+loglLabel = tk.Label(second_frame, text="logLevel:", font = ("Times New Roman", 10))
+namelabel = tk.Label(second_frame, text="name:", font = ("Times New Roman", 10))
+fiplabel = tk.Label(second_frame, text="fiPrefix:", font = ("Times New Roman", 10))
+
+# Combobox
+choiceVar = tk.StringVar()
+injectCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar, values=['errorRate', 'dynamicInstance', 'oneFaultPerRun'])
+injectCombo.grid(row=5, column=1, sticky = 'w')
+injectCombo.current(0)
+choiceVar.trace("w", on_trace_choice)
+
+choiceVar2 = tk.StringVar()
+modeCombo2 = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar2, values=['Single', 'Multiple'])
+modeCombo2.grid(row=5, column=3, sticky = 'w')
+modeCombo2.current(0)
+choiceVar2.trace("w", on_trace_choice)
+
+
+scalarCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+scalarCombo.grid(row=6, column=1, sticky = 'w')
+scalarCombo.current(0)
+
+tensorCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
+tensorCombo.grid(row=6, column=3, sticky = 'w')
+tensorCombo.current(4)
+
+opsCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
+                                                                        'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
+                                                                        'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
+                                                                        'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'])
+opsCombo.grid(row=7, column=1, sticky = 'w')
+opsCombo.current(0)
+
+insCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['ABSOLUTE', 'ADD', 'ASSIGN', 'ALL', 'ARGMAX', 'ARGMIN', 'BIASADD', 'CAST', 'COUNT-NONZERO', 'CONV2D', 'ELU', 'END', 'EQUAL', 'EXPAND-DIMS',
+                                                                        'FILL', 'FLOOR-MOD', 'GREATER-EQUAL', 'IDENTITY', 'LESS-EQUAL', 'LOG', 'LRN', 'MATMUL', 'MAX-POOL', 'MEAN', 'MINIMUM', 'MUL', 'NEGATIVE', 'NOT-EQUAL', 'NOOP',
+                                                                        'ONE-HOT', 'PACK', 'POW', 'RANDOM_UNIFORM', 'RANK', 'RANGE', 'REALDIV', 'RELU', 'RESHAPE', 'RSQRT', 'SIGMOID', 'SIZE', 'SHAPE', 'SOFT-MAX', 'SQUARE', 'STRIDED-SLICE',
+                                                                        'SUB',  'SUM', 'SWITCH', 'TANH', 'UNPACK'], state="disabled")
+insCombo.grid(row=8, column=1, sticky = 'w')
+insCombo.current(0)
+
+disCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['False', 'True'], width = 8)
+# disCombo.grid(row=11, column = 1, padx = 5, pady = 5, sticky = 'w')
+disCombo.current(0)
+
+modeVar = tk.StringVar()
+modeCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=modeVar, values=['Run', 'Debug'], width = 8)
+modeCombo.grid(row=10, column = 3, padx = 5, pady = 5, sticky = 'w')
+modeCombo.current(0)
+modeVar.trace("w", on_trace_mode)
+
+# Default to be 0
+loglCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=[10, 20, 30], width = 8)
+# loglCombo.grid(row=13, column=15)
+loglCombo.current(0)
+
+# Entry - Enter the value
+opsEntry = tk.Entry(second_frame, bd=3, width = 5)
+opsEntry.grid(row=7, column = 3, sticky = 'w')
+opsEntry2 = tk.Entry(second_frame, bd=3, width = 5, state="disabled")
+opsEntry2.grid(row=7, column = 3)
+opsEntry3 = tk.Entry(second_frame, bd=3,width = 5, state="disabled")
+opsEntry3.grid(row=7, column = 3, sticky = 'e')
+opsEntry.focus()
+insEntry = tk.Entry(second_frame,width = 8, bd=5, state="disabled")
+insEntry.grid(row=8, column = 3, sticky = 'w')
+seedText = tk.StringVar()
+seedEntry = tk.Entry(second_frame,width = 8, bd=3,textvariable=seedText)
+seedEntry.grid(row=9, column=1, sticky = 'w')
+seedText.set(1000)
+skipText = tk.StringVar()
+skipEntry = tk.Entry(second_frame,width = 8,bd=3,textvariable=skipText)
+skipEntry.grid(row=9, column=3, sticky = 'w')
+skipText.set(0)
+nameText = tk.StringVar()
+nameEntry = tk.Entry(second_frame,bd=3, width = 8,textvariable=nameText)
+nameText.set('noname')
+fipText = tk.StringVar()
+fipEntry = tk.Entry(second_frame,bd=3, width = 8, textvariable=fipText)
+fipText.set('fi_')
+
+# Button - Click to generate default.yaml file
+opButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addOp)
+opButt.grid(row=7, column=4)
+insButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addIns, state="disabled")
+insButt.grid(row=8, column=4)
+fileButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseFiles)
+fileButt.grid(row=10, column = 1, padx = 5, pady = 5, sticky = 'w')
+logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseLogDir)
+
+#------------------------
+# Fault injection
+emptyTuple = ()
+
+
 #TODO: Add exceptions
 def injectFaults():
     fiButt.configure(text = 'Injecting')
@@ -380,79 +458,9 @@ def plot_eb(xList, fLabel, xLabel, yLabel, fTitle, picName):
     fig.savefig(picName)
 
 #-------
-# Callback function
-def on_trace_mode(name, index, mode):
-    refresh_mode()
-def refresh_mode( ):
-    mode = modeCombo.get()
-    if mode == 'Run':
-        logdLabel.grid_forget()
-        logdButt.grid_forget()
-        loglLabel.grid_forget()
-        loglCombo.grid_forget()
-        namelabel.grid_forget()
-        nameEntry.grid_forget()
-        fiplabel.grid_forget()
-        fipEntry.grid_forget()
-    else:
-        # TODO: The default value is "noName". The default value is "fi_"
-        logdLabel.grid(row=13, column = 0, padx = 5, pady = 5, sticky = 'w')
-        logdButt.grid(row=13, column=1, padx=5, pady=5, sticky='w')
-        loglLabel.grid(row=13, column = 2, padx = 5, pady = 5, sticky = 'w')
-        loglCombo.grid(row=13, column = 3, padx = 5, pady = 5, sticky = 'w')
-        namelabel.grid(row=14, column = 0, padx = 5, pady = 5, sticky = 'w')
-        nameEntry.grid(row=14, column = 1, padx = 5, pady = 5, sticky = 'w')
-        fiplabel.grid(row=14, column = 2, padx = 5, pady = 5, sticky = 'w')
-        fipEntry.grid(row=14, column = 3, padx = 5, pady = 5, sticky = 'w')
 
 
-# Label
-fiTitleLabel = tk.Label(second_frame, text="Fault injection", font = ('Times New Roman', 12, 'bold')).grid(row=10, column=0, padx = 5, pady = 25, sticky = 'w')
-sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row = 11, column = 0, padx = 5, pady = 5, sticky = 'w')
-confLabel = tk.Label(second_frame, text="configFileName:", font = ("Times New Roman", 10)).grid(row=11, column = 2, padx = 5, pady = 5, sticky = 'w')
-disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10)).grid(row=12, column = 2, padx = 5, pady = 5, sticky = 'w')
-modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=12, column = 0, padx = 5, pady = 5, sticky = 'w')
-# Debugging mode
-logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10))
-loglLabel = tk.Label(second_frame, text="logLevel:", font = ("Times New Roman", 10))
-# loglLabel.grid(row=13, column=10, padx = 10, pady = 25)
-namelabel = tk.Label(second_frame, text="name:", font = ("Times New Roman", 10))
-# namelabel.grid(row=14, column=0, padx = 10, pady = 25)
-fiplabel = tk.Label(second_frame, text="fiPrefix:", font = ("Times New Roman", 10))
-# fiplabel.grid(row=14, column=10, padx = 10, pady = 25)
 
-# Combobox
-disCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=['False', 'True'], width = 8)
-disCombo.grid(row=12, column = 3, padx = 5, pady = 5, sticky = 'w')
-disCombo.current(0)
-
-modeVar = tk.StringVar()
-modeCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=modeVar, values=['Run', 'Debug'], width = 8)
-modeCombo.grid(row=12, column = 1, padx = 5, pady = 5, sticky = 'w')
-modeCombo.current(0)
-modeVar.trace("w", on_trace_mode)
-
-# Default to be 0
-loglCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), values=[10, 20, 30], width = 8)
-# loglCombo.grid(row=13, column=15)
-loglCombo.current(0)
-
-# Entry
-nameText = tk.StringVar()
-nameEntry = tk.Entry(second_frame,bd=3, width = 8,textvariable=nameText)
-nameText.set('noname')
-# nameEntry.grid(row=14, column=5)
-fipText = tk.StringVar()
-fipEntry = tk.Entry(second_frame,bd=3, width = 8, textvariable=fipText)
-fipText.set('fi_')
-# fipEntry.grid(row=14, column=15)
-
-# Button
-fileButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseFiles)
-fileButt.grid(row=11, column = 1, padx = 5, pady = 5, sticky = 'w')
-fileConfButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseConfFiles)
-fileConfButt.grid(row=11, column = 3, padx = 5, pady = 5, sticky = 'w')
-logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseLogDir)
 
 
 # -------------------------------
@@ -522,7 +530,8 @@ feedDicButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add",
 feedDicButt.grid(row=17, column = 4, padx = 5, pady = 5, sticky = 'w')
 # feeButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Print", command=printt)
 # feeButt.grid(row=18, column=0)
-fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=injectFaults)
+# fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=injectFaults)
+fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=generateYaml)
 fiButt.grid(row=18, column = 4, padx = 5, pady = 5, sticky = 'w')
 
 #-----------------

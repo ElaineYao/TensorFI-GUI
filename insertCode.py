@@ -312,11 +312,12 @@ def addFi(parse_src, # Parsed code
 
 
 if __name__ == '__main__':
-    parse_src_import=addImport('lenet-mnist-no-FI.py')
-    parse_src_fi =addFi(parse_src_import, 'correct_prediction', {'y': 'y_test', 'x': 'X_test'}, 'lenet-sdcrates.csv', 5,'X_test', 'y_test',
+    parse_src_import=addImport('./Tests/alexnet-mnist-no-FI.py')
+    # print(astor.to_source(parse_src_import))
+    parse_src_fi =addFi(parse_src_import, 'correct_pred', {'y': 'y_test', 'x': 'X_test', 'keep_prob': '1.'}, 'lenet-sdcrates.csv', 5,'X_test', 'y_test',
                          '/home/elaine/pycharmProjects/yamlTest/test-1.yaml', "/home/elaine/pycharmProjects/yamlTest/faultLogs/", logging.DEBUG, 'False', 'test', 'fi_')
-    with open("Output.py", "w") as f:
-        f.write(astor.to_source(parse_src_fi))
+    # with open("Output.py", "w") as f:
+    #     f.write(astor.to_source(parse_src_fi))
     # Execute the parsed code
     # parse_src_import = ast.parse(open('sample.py').read())
     # exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
