@@ -72,7 +72,7 @@ def generateYaml():
             os.mkdir(yamldir)
         else:
             os.mkdir(yamldir)
-        yamlFile = yamldir + '/conf-0.yaml'
+        yamlFile = yamldir + '/0-conf.yaml'
         print(yamlFile)
         with open(yamlFile, 'w') as f:
             data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
@@ -136,7 +136,7 @@ def generateYaml():
             if skipCount != '':
                 paramsDict['SkipCount'] = int(skipCount)
 
-            yamlFile = yamldir+'/conf-'+str(i)+'.yaml'
+            yamlFile = yamldir+'/'+str(i)+'-conf'+'.yaml'
             with open(yamlFile, 'w') as f:
                 data = yaml.dump(paramsDict, f, Dumper=yaml.RoundTripDumper)
 
@@ -232,8 +232,15 @@ def refresh_mode( ):
         nameEntry.grid(row=13, column = 1, padx = 5, pady = 5, sticky = 'w')
         fiplabel.grid(row=12, column = 2, padx = 5, pady = 5, sticky = 'w')
         fipEntry.grid(row=12, column = 3, padx = 5, pady = 5, sticky = 'w')
+        feedKeyLabel.grid(row=16,column=0,padx=5, pady=5,sticky='w')
+        feedKeyEntry.grid(row=16,column=1,padx=5, pady=5,sticky='w')
+        feedValLabel.grid(row=16,column=2,padx=5, pady=5,sticky='w')
+        feedValEntry.grid(row=16,column=3,padx=5, pady=5,sticky='w')
+        numFILabel.grid(row=17, column=0, padx=5, pady=5, sticky='w')
+        numFIEntry.grid(row=17,column=1,padx=5, pady=5,sticky='w')
+        feedDicButt.grid(row=16,column=4,padx=5, pady=5,sticky='w')
 
-# BrowseFiles
+    # BrowseFiles
 def browseFiles():
     filename = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
                                           title="Select a File",
@@ -250,24 +257,16 @@ def browseFiles():
         fileButt.configure(text=tail)
 
 def browseConfFiles():
-    filenames = tkinter.filedialog.askopenfilename(initialdir=os.path.dirname(os.path.abspath(__file__)),
-                                                  title="Select a File",
-                                                  multiple=True,
-                                                  filetypes=(("YAML files",
-                                                              "*.yaml*"),))
-    global confiles
-    if filenames != '':
-        confiles = filenames
 
-    if filenames == emptyTuple:
-        fileConfButt.configure(text="Select")
-    else:
-        head1, tail1 = os.path.split(confiles[0])
-        head2, tail2 = os.path.split(confiles[-1])
-        if len(confiles) == 1:
-            fileConfButt.configure(text=tail1)
-        else:
-            fileConfButt.configure(text=tail1 + '...' + tail2)
+    # TODO: browse the files, if the number of files is 1, then ,
+
+    yamldir = os.path.join(os.getcwd(), 'configYAML')
+    global confiles
+    confiles = [os.path.join(root, name)
+                 for root, dirs, files in os.walk(yamldir)
+                 for name in files
+                 if name.endswith((".yaml"))]
+    confiles = sorted(confiles)
 
 def browseLogDir():
     dirname = tkinter.filedialog.askdirectory()
@@ -280,7 +279,16 @@ def browseLogDir():
         head, tail = os.path.split(dirpath)
         logdButt.configure(text=tail)
 
-
+# Generate feed_dict
+Dict = {}
+def addDict():
+    key = feedKeyEntry.get()
+    # value = check(feedValEntry)
+    value = feedValEntry.get()
+    Dict[key] = value
+    feedLabel1 = tk.Label(second_frame, text='Successfully added!')
+    feedLabel1.grid(row=17, column=20)
+    feedLabel1.after(1000, feedLabel1.destroy)
 
 #--------------
 # Parameters Part
@@ -315,12 +323,22 @@ skipLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="SkipCou
                     .grid(row = 9, column = 2, padx = 5, pady = 5, sticky = 'w')
 sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row = 10, column = 0, padx = 5, pady = 5, sticky = 'w')
 modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=10, column = 2, padx = 5, pady = 5, sticky = 'w')
+accuLabel = tk.Label(second_frame, text="Accuracy function: ", font = ("Times New Roman", 10)).grid(row=14, column = 0, padx = 5, pady = 5, sticky = 'w')
+corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=14, column = 2, padx = 5, pady = 5, sticky = 'w')
+testXLabel = tk.Label(second_frame, text="Test set (X): ", font = ("Times New Roman", 10))
+testXLabel.grid(row=15, column = 0, padx = 5, pady = 5, sticky = 'w')
+testYLabel = tk.Label(second_frame, text="Test set (Y): ", font = ("Times New Roman", 10))
+testYLabel.grid(row=15, column = 2, padx = 5, pady = 5, sticky = 'w')
 # Debugging mode
 disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10))
 logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10))
 loglLabel = tk.Label(second_frame, text="logLevel:", font = ("Times New Roman", 10))
 namelabel = tk.Label(second_frame, text="name:", font = ("Times New Roman", 10))
 fiplabel = tk.Label(second_frame, text="fiPrefix:", font = ("Times New Roman", 10))
+numFILabel = tk.Label(second_frame, text="Number of injections: ", font = ("Times New Roman", 10))
+feedKeyLabel = tk.Label(second_frame, text="Feed key: ", font = ("Times New Roman", 10))
+feedValLabel = tk.Label(second_frame, text="Feed value: ", font = ("Times New Roman", 10))
+
 
 # Combobox
 choiceVar = tk.StringVar()
@@ -398,6 +416,20 @@ fipText = tk.StringVar()
 fipEntry = tk.Entry(second_frame,bd=3, width = 8, textvariable=fipText)
 fipText.set('fi_')
 
+accuEntry = tk.Entry(second_frame,bd=3, width = 15)
+accuEntry.grid(row=14, column = 1, padx = 5, pady = 5, sticky = 'w')
+correPreEntry = tk.Entry(second_frame,bd=3, width = 15)
+correPreEntry.grid(row=14, column = 3, padx = 5, pady = 5, sticky = 'w')
+testXEntry = tk.Entry(second_frame,bd=3, width = 15)
+testXEntry.grid(row=15, column = 1, padx = 5, pady = 5, sticky = 'w')
+testYEntry = tk.Entry(second_frame,bd=3, width = 15)
+testYEntry.grid(row=15, column = 3, padx = 5, pady = 5, sticky = 'w')
+
+# Debugging mode
+numFIEntry = tk.Entry(second_frame,bd=3, width = 15)
+feedKeyEntry = tk.Entry(second_frame,bd=3, width = 15)
+feedValEntry = tk.Entry(second_frame,bd=3, width = 15)
+
 # Button - Click to generate default.yaml file
 opButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addOp)
 opButt.grid(row=7, column=4)
@@ -406,6 +438,14 @@ insButt.grid(row=8, column=4)
 fileButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseFiles)
 fileButt.grid(row=10, column = 1, padx = 5, pady = 5, sticky = 'w')
 logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseLogDir)
+# Debugging mode
+feedDicButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addDict)
+
+# fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=injectFaults)
+fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=browseConfFiles)
+fiButt.grid(row=15, column = 4, padx = 5, pady = 5, sticky = 'w')
+
+
 
 #------------------------
 # Fault injection
@@ -486,53 +526,7 @@ def check(entry):
                 print('Data type not support.')
 
 
-# Generate feed_dict
-Dict = {}
-def addDict():
-    key = feedKeyEntry.get()
-    # value = check(feedValEntry)
-    value = feedValEntry.get()
-    Dict[key] = value
-    feedLabel1 = tk.Label(second_frame, text='Successfully added!')
-    feedLabel1.grid(row=17, column=20)
-    feedLabel1.after(1000, feedLabel1.destroy)
 
-
-# Label
-staTitleLabel = tk.Label(second_frame, text="Statistics settings", font = ('Times New Roman', 12, 'bold')).grid(row=15, column=0, padx = 5, pady = 25, sticky = 'w')
-corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=16, column = 0, padx = 5, pady = 5, sticky = 'w')
-numFILabel = tk.Label(second_frame, text="Number of injections: ", font = ("Times New Roman", 10)).grid(row=16, column = 2, padx = 5, pady = 5, sticky = 'w')
-feedKeyLabel = tk.Label(second_frame, text="Feed key: ", font = ("Times New Roman", 10))
-feedKeyLabel.grid(row=17, column = 0, padx = 5, pady = 5, sticky = 'w')
-feedValLabel = tk.Label(second_frame, text="Feed value: ", font = ("Times New Roman", 10))
-feedValLabel.grid(row=17, column = 2, padx = 5, pady = 5, sticky = 'w')
-testXLabel = tk.Label(second_frame, text="Test set (X): ", font = ("Times New Roman", 10))
-testXLabel.grid(row=18, column = 0, padx = 5, pady = 5, sticky = 'w')
-testYLabel = tk.Label(second_frame, text="Test set (Y): ", font = ("Times New Roman", 10))
-testYLabel.grid(row=18, column = 2, padx = 5, pady = 5, sticky = 'w')
-
-# Entry
-correPreEntry = tk.Entry(second_frame,bd=3, width = 15)
-correPreEntry.grid(row=16, column = 1, padx = 5, pady = 5, sticky = 'w')
-numFIEntry = tk.Entry(second_frame,bd=3, width = 15)
-numFIEntry.grid(row=16, column = 3, padx = 5, pady = 5, sticky = 'w')
-feedKeyEntry = tk.Entry(second_frame,bd=3, width = 15)
-feedKeyEntry.grid(row=17, column = 1, padx = 5, pady = 5, sticky = 'w')
-feedValEntry = tk.Entry(second_frame,bd=3, width = 15)
-feedValEntry.grid(row=17, column = 3, padx = 5, pady = 5, sticky = 'w')
-testXEntry = tk.Entry(second_frame,bd=3, width = 15)
-testXEntry.grid(row=18, column = 1, padx = 5, pady = 5, sticky = 'w')
-testYEntry = tk.Entry(second_frame,bd=3, width = 15)
-testYEntry.grid(row=18, column = 3, padx = 5, pady = 5, sticky = 'w')
-
-# Button
-feedDicButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addDict)
-feedDicButt.grid(row=17, column = 4, padx = 5, pady = 5, sticky = 'w')
-# feeButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Print", command=printt)
-# feeButt.grid(row=18, column=0)
-# fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=injectFaults)
-fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=generateYaml)
-fiButt.grid(row=18, column = 4, padx = 5, pady = 5, sticky = 'w')
 
 #-----------------
 # Results

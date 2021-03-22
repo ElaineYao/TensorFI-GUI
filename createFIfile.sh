@@ -7,6 +7,6 @@ done
 
 for ((j=1; j<$num; j++))
 do
-    sed -i "s/test-0.yaml/test-$j.yaml/g" Injected-"$j".py
+    sed -i "s/0-conf.yaml/$j-conf.yaml/g" Injected-"$j".py
 done
 
