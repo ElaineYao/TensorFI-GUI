@@ -48,25 +48,46 @@ def addAcc(testX,
     argList = []
     argList.append(ast.Name(testX, ast.Load()))
     argList.append(ast.Name(testY, ast.Load()))
-    accCall = ast.Call(ast.Name(evaFun, ast.Load),argList, [], None, None)
-    assiName = ast.Assign(nameList, accCall,)
+    accCall = ast.Call(ast.Name(evaFun, ast.Load()),argList, [], None, None)
+    assiName = ast.Assign(nameList, accCall)
     body.append(assiName)
     return body
 
 # ----------------------Add accuracy printing function-----------------------------
 # E.g., print("Accuracy (with injections): {:.3f}".format(test_accuracy))
 
-def addPrint():
+def addFiles():
     body = []
-    callList = []
+    nameList = []
+    argsList = []
+    nameList.append(ast.Name('accFile', ast.Store()))
+    argsList.append(ast.Str('accuracy.csv'))
+    argsList.append(ast.Str('a'))
+    assibody = ast.Assign(nameList, ast.Call(ast.Name('open', ast.Load()), argsList, [], None, None))
+    body.append(assibody)
+    return body
+
+def writeFiles():
+    body = []
+    binList = []
     nameList = []
     nameList.append(ast.Name('test_accuracy', ast.Load()))
-    callList.append(ast.Call(ast.Attribute(ast.Str('Accuracy (with injections): {:.3f}'), 'format', ast.Load()),
-                             nameList,
-                             [], None, None))
-    printBody = ast.Print(None, callList, True)
-    body.append(printBody)
+    binList.append(ast.BinOp(ast.Call(ast.Name('str', ast.Load()),
+                                      nameList,
+                                      [],
+                                      None, None),
+                             ast.Add(),
+                             ast.Str('\n')))
+    expbody = ast.Expr(ast.Call(ast.Attribute(ast.Name('accFile', ast.Load()), 'write', ast.Load()),
+                                binList,
+                                [],
+                                None,
+                                None))
+    body.append(expbody)
     return body
+
+
+
 
 # ------------------------------- Add TensorFI init function -----------------------------------
 # `fi = ti.TensorFI(sess,configFileName='./confFiles/eb/default-1eb.yaml', logLevel = 10, name = "lenet", disableInjections=False)`
@@ -76,12 +97,7 @@ def addFi(parse_src, # Parsed code
           testX,
           testY,
           evaFun,
-          configFileName="confFiles/default.yaml",  # Config file for reading fault configuration
-          logDir="faultLogs/",  # Log directory for the Fault log (Not to be confused with the logging level below)
-          logLevel=logging.DEBUG,  # Logging level {DEBUG=10, INFO=20, ERROR=30}
-          disableInjections=False,  # Should we disable injections after instrumenting ?
-          name="NoName",  # The name of the injector, used in statistics and logging
-          fiPrefix="fi_"):  # Prefix to attach to each node inserted for fault injection
+          configFileName):  # Prefix to attach to each node inserted for fault injection
 
 
     s = 'tf.Session' # This is the session from tensorFlow
@@ -108,17 +124,7 @@ def addFi(parse_src, # Parsed code
     fiKeyList = []
     fiNameList.append(fiName)
     confKey = ast.keyword('configFileName', ast.Str(configFileName))
-    logDKey = ast.keyword('logDir', ast.Str(logDir))
-    logKey = ast.keyword('logLevel', ast.Num(logLevel))
-    disaKey = ast.keyword('disableInjections', ast.Name(disableInjections, ast.Load()))
-    nameKey = ast.keyword('name', ast.Str(name))
-    preKey = ast.keyword('fiPrefix', ast.Str(fiPrefix))
     fiKeyList.append(confKey)
-    fiKeyList.append(logDKey)
-    fiKeyList.append(logKey)
-    fiKeyList.append(disaKey)
-    fiKeyList.append(nameKey)
-    fiKeyList.append(preKey)
     tiAttr = ast.Attribute(tiName, 'TensorFI', ast.Load())
     tiCall = ast.Call(tiAttr, sessNameList, fiKeyList, None, None)
 
@@ -130,8 +136,12 @@ def addFi(parse_src, # Parsed code
     for i in accBody:
         tiBody.append(i)
 
-    printBody = addPrint()
-    for i in printBody:
+    fileBody = addFiles()
+    for i in fileBody:
+        tiBody.append(i)
+
+    writeBody = writeFiles()
+    for i in writeBody:
         tiBody.append(i)
 
     for i in range(len(tiBody)):
@@ -139,7 +149,7 @@ def addFi(parse_src, # Parsed code
 
     ast.fix_missing_locations(parse_src)
 
-    print(astor.to_source(parse_src))
+    # print(astor.to_source(parse_src))
     # print(ast.dump(parse_src))
     return parse_src
 
@@ -147,9 +157,12 @@ def addFi(parse_src, # Parsed code
 
 
 if __name__ == '__main__':
-    parse_src_import=addImport('./Tests/lenet-mnist-no-FI.py')
+    # parse_src_import=addImport('./Tests/lenet-mnist-no-FI.py')
+    parse_src_import=addImport('./Tests/TEST-lenet-mnist-no-FI.py')
     parse_src_fi = addFi(parse_src_import,
-                         'X_test', 'y_test', 'evaluation',
-                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml',
-                         "/home/elaine/pycharmProjects/yamlTest/faultLogs/", logging.DEBUG, 'False', 'test', 'fi_')
+                         'X_test', 'y_test', 'evaluate',
+                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml')
     print(astor.to_source(parse_src_fi))
+    # with open('./Tests/TEST-lenet-mnist-no-FI.py', "r") as source:
+    #     tree = ast.parse(source.read())
+    #     print(ast.dump(tree))

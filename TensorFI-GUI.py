@@ -6,6 +6,7 @@ import Tkinter as tk
 import ttk
 import ruamel_yaml as yaml
 import insertCode as inCd
+import insertCodeAccu as inCdAc
 import logging
 import os
 import csv
@@ -221,6 +222,15 @@ def refresh_mode( ):
         nameEntry.grid_forget()
         fiplabel.grid_forget()
         fipEntry.grid_forget()
+        feedKeyLabel.grid_forget()
+        feedKeyEntry.grid_forget()
+        feedValLabel.grid_forget()
+        feedValEntry.grid_forget()
+        feedDicButt.grid_forget()
+        numFILabel.grid_forget()
+        numFIEntry.grid_forget()
+        corrPreLabel.grid_forget()
+        correPreEntry.grid_forget()
     else:
         disLabel.grid(row=11,column=0,padx=5, pady=5,sticky='w')
         disCombo.grid(row=11, column=1, padx=5, pady=5, sticky='w')
@@ -232,13 +242,15 @@ def refresh_mode( ):
         nameEntry.grid(row=13, column = 1, padx = 5, pady = 5, sticky = 'w')
         fiplabel.grid(row=12, column = 2, padx = 5, pady = 5, sticky = 'w')
         fipEntry.grid(row=12, column = 3, padx = 5, pady = 5, sticky = 'w')
-        feedKeyLabel.grid(row=16,column=0,padx=5, pady=5,sticky='w')
-        feedKeyEntry.grid(row=16,column=1,padx=5, pady=5,sticky='w')
-        feedValLabel.grid(row=16,column=2,padx=5, pady=5,sticky='w')
-        feedValEntry.grid(row=16,column=3,padx=5, pady=5,sticky='w')
-        numFILabel.grid(row=17, column=0, padx=5, pady=5, sticky='w')
-        numFIEntry.grid(row=17,column=1,padx=5, pady=5,sticky='w')
-        feedDicButt.grid(row=16,column=4,padx=5, pady=5,sticky='w')
+        feedKeyLabel.grid(row=14,column=0,padx=5, pady=5,sticky='w')
+        feedKeyEntry.grid(row=14,column=1,padx=5, pady=5,sticky='w')
+        feedValLabel.grid(row=14,column=2,padx=5, pady=5,sticky='w')
+        feedValEntry.grid(row=14,column=3,padx=5, pady=5,sticky='w')
+        numFILabel.grid(row=13, column=2, padx=5, pady=5, sticky='w')
+        numFIEntry.grid(row=13,column=3,padx=5, pady=5,sticky='w')
+        feedDicButt.grid(row=14,column=4,padx=5, pady=5,sticky='w')
+        corrPreLabel.grid(row=15, column = 2, padx = 5, pady = 5, sticky = 'w')
+        correPreEntry.grid(row=15, column = 3, padx = 5, pady = 5, sticky = 'w')
 
     # BrowseFiles
 def browseFiles():
@@ -262,11 +274,11 @@ def browseConfFiles():
 
     yamldir = os.path.join(os.getcwd(), 'configYAML')
     global confiles
-    confiles = [os.path.join(root, name)
+    confiles_unsorted = [os.path.join(root, name)
                  for root, dirs, files in os.walk(yamldir)
                  for name in files
                  if name.endswith((".yaml"))]
-    confiles = sorted(confiles)
+    confiles = sorted(confiles_unsorted)
 
 def browseLogDir():
     dirname = tkinter.filedialog.askdirectory()
@@ -289,6 +301,56 @@ def addDict():
     feedLabel1 = tk.Label(second_frame, text='Successfully added!')
     feedLabel1.grid(row=17, column=20)
     feedLabel1.after(1000, feedLabel1.destroy)
+
+
+# ------------------------
+# Fault injection
+emptyTuple = ()
+
+
+# TODO: Add exceptions
+def injectFaults():
+    generateYaml()
+    browseConfFiles()
+    fiButt.configure(text='Injecting')
+    loglValue = 0
+
+    if modeCombo.get() == 'Debug':
+        loglValue = eval(loglCombo.get())
+        parse_src_import = inCd.addImport(sourcefile)
+        parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
+                                  testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
+                                  nameEntry.get(), fipEntry.get())
+    else:
+        dirpath = ' '
+        parse_src_import = inCdAc.addImport('./Tests/lenet-mnist-no-FI.py')
+        parse_src_fi = inCdAc.addFi(parse_src_import,
+                                    testXEntry.get(), testYEntry.get(), accuEntry.get(),
+                                    confiles[0])
+
+    # FIXME:
+    if len(confiles) == 1:
+        exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+    else:
+        with open("Injected-0" + ".py", "w") as f:
+            f.write(astor.to_source(parse_src_fi))
+        arg1 = str(len(confiles))
+        subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
+        subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
+                        env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
+
+    if modeCombo.get() == 'Debug':
+        # Execute the parsed code
+        sdc = np.loadtxt('sdcRates.csv', delimiter='\n', unpack=True)
+        # FIXME: add sdcrates & accuracy in Debug settings
+        sdcOnceLabel.configure(text='SDC rates: ' + str(sdc))
+
+    else:
+        # FIXME: add accuracy
+        acc = np.loadtxt('accuracy.csv', delimiter='\n', unpack=True)
+        accOnceLabel.configure(text='Accuracy with injections: ' + str(acc))
+
+
 
 #--------------
 # Parameters Part
@@ -323,12 +385,12 @@ skipLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="SkipCou
                     .grid(row = 9, column = 2, padx = 5, pady = 5, sticky = 'w')
 sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roman", 10)).grid(row = 10, column = 0, padx = 5, pady = 5, sticky = 'w')
 modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=10, column = 2, padx = 5, pady = 5, sticky = 'w')
-accuLabel = tk.Label(second_frame, text="Accuracy function: ", font = ("Times New Roman", 10)).grid(row=14, column = 0, padx = 5, pady = 5, sticky = 'w')
-corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10)).grid(row=14, column = 2, padx = 5, pady = 5, sticky = 'w')
+accuLabel = tk.Label(second_frame, text="Accuracy function: ", font = ("Times New Roman", 10)).grid(row=15, column = 0, padx = 5, pady = 5, sticky = 'w')
+corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10))
 testXLabel = tk.Label(second_frame, text="Test set (X): ", font = ("Times New Roman", 10))
-testXLabel.grid(row=15, column = 0, padx = 5, pady = 5, sticky = 'w')
+testXLabel.grid(row=16, column = 0, padx = 5, pady = 5, sticky = 'w')
 testYLabel = tk.Label(second_frame, text="Test set (Y): ", font = ("Times New Roman", 10))
-testYLabel.grid(row=15, column = 2, padx = 5, pady = 5, sticky = 'w')
+testYLabel.grid(row=16, column = 2, padx = 5, pady = 5, sticky = 'w')
 # Debugging mode
 disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10))
 logdLabel = tk.Label(second_frame, text="logDir:", font = ("Times New Roman", 10))
@@ -417,13 +479,13 @@ fipEntry = tk.Entry(second_frame,bd=3, width = 8, textvariable=fipText)
 fipText.set('fi_')
 
 accuEntry = tk.Entry(second_frame,bd=3, width = 15)
-accuEntry.grid(row=14, column = 1, padx = 5, pady = 5, sticky = 'w')
+accuEntry.grid(row=15, column = 1, padx = 5, pady = 5, sticky = 'w')
 correPreEntry = tk.Entry(second_frame,bd=3, width = 15)
-correPreEntry.grid(row=14, column = 3, padx = 5, pady = 5, sticky = 'w')
+
 testXEntry = tk.Entry(second_frame,bd=3, width = 15)
-testXEntry.grid(row=15, column = 1, padx = 5, pady = 5, sticky = 'w')
+testXEntry.grid(row=16, column = 1, padx = 5, pady = 5, sticky = 'w')
 testYEntry = tk.Entry(second_frame,bd=3, width = 15)
-testYEntry.grid(row=15, column = 3, padx = 5, pady = 5, sticky = 'w')
+testYEntry.grid(row=16, column = 3, padx = 5, pady = 5, sticky = 'w')
 
 # Debugging mode
 numFIEntry = tk.Entry(second_frame,bd=3, width = 15)
@@ -442,45 +504,10 @@ logdButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select",
 feedDicButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addDict)
 
 # fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=injectFaults)
-fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=browseConfFiles)
-fiButt.grid(row=15, column = 4, padx = 5, pady = 5, sticky = 'w')
+fiButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Inject", command=injectFaults)
+fiButt.grid(row=16, column = 4, padx = 5, pady = 5, sticky = 'w')
 
 
-
-#------------------------
-# Fault injection
-emptyTuple = ()
-
-
-#TODO: Add exceptions
-def injectFaults():
-    fiButt.configure(text = 'Injecting')
-    loglValue = 0
-
-    if modeCombo.get() == 'Debug':
-        loglValue = eval(loglCombo.get());
-    else:
-        dirpath = ' '
-
-    parse_src_import = inCd.addImport(sourcefile)
-    parse_src_fi = inCd.addFi(parse_src_import, correPreEntry.get(), Dict, 'sdcRates.csv', int(numFIEntry.get()),
-                              testXEntry.get(), testYEntry.get(), confiles[0], dirpath, loglValue, disCombo.get(),
-                              nameEntry.get(), fipEntry.get())
-    # FIXME:
-    if len(confiles) == 1:
-        exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
-    else:
-        with open("Injected-0" + ".py", "w") as f:
-            f.write(astor.to_source(parse_src_fi))
-        arg1 = str(len(confiles))
-        subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
-        subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
-                        env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
-
-    # Execute the parsed code
-
-    sdc = np.loadtxt('sdcRates.csv', delimiter='\n', unpack=True)
-    sdcOnceLabel.configure(text = 'SDC rates: '+str(sdc))
 
 def plot_eb(xList, fLabel, xLabel, yLabel, fTitle, picName):
     x = []
@@ -531,8 +558,10 @@ def check(entry):
 #-----------------
 # Results
 resTitleLabel = tk.Label(second_frame, text="Results", font = ('Times New Roman', 12, 'bold')).grid(row=19, column = 0, padx = 5, pady = 25, sticky = 'w')
-sdcOnceLabel = tk.Label(second_frame, text="SDC rates: ", font=('Times New Roman', 10))
-sdcOnceLabel.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
+accOnceLabel = tk.Label(second_frame, text="Accuracy with injection: ", font=('Times New Roman', 10))
+accOnceLabel.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
+
+# FIXME: ADD sdcOnceLable
 
 
 root.mainloop()
