@@ -62,7 +62,7 @@ def addFiles():
     argsList = []
     nameList.append(ast.Name('accFile', ast.Store()))
     argsList.append(ast.Str('accuracy.csv'))
-    argsList.append(ast.Str('a'))
+    argsList.append(ast.Str('w'))
     assibody = ast.Assign(nameList, ast.Call(ast.Name('open', ast.Load()), argsList, [], None, None))
     body.append(assibody)
     return body

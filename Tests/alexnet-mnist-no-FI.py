@@ -137,11 +137,11 @@ init = tf.initialize_all_variables()
 #     print "Optimization Finished!"
 #     # Calculate accuracy for 256 mnist test images
 #     print "Testing Accuracy:", sess.run(accuracy, feed_dict={x: mnist.test.images[:256], y: mnist.test.labels[:256], keep_prob: 1.})
-#     saver.save(sess, './alexnet-checkpoint/alexnet')
+#     saver.save(sess, '/home/elainey/backup/pycharmProjects/yamlTest/Tests/alexnet-checkpoint/alexnet'))')
 #     print("Model saved")
 
 with tf.Session() as sess:
-    saver.restore(sess, tf.train.latest_checkpoint('/home/elaine/pycharmProjects/yamlTest/Tests/alexnet-checkpoint/'))
+    saver.restore(sess, tf.train.latest_checkpoint('/home/elainey/backup/pycharmProjects/yamlTest/Tests/alexnet-checkpoint/'))
     X_test = mnist.test.images[:256]
     y_test = mnist.test.labels[:256]
     print "Testing Accuracy:", sess.run(accuracy, feed_dict={x: mnist.test.images[:256], y: mnist.test.labels[:256],

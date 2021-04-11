@@ -310,9 +310,9 @@ emptyTuple = ()
 
 # TODO: Add exceptions
 def injectFaults():
+    fiButt.configure(text='Injecting')
     generateYaml()
     browseConfFiles()
-    fiButt.configure(text='Injecting')
     loglValue = 0
 
     if modeCombo.get() == 'Debug':
@@ -330,15 +330,23 @@ def injectFaults():
 
     # FIXME:
     if len(confiles) == 1:
-        exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+        # exec (compile(parse_src_fi, filename="<ast>", mode="exec"), globals())
+        with open("Injected-0" + ".py", "w") as f:
+            f.write(astor.to_source(parse_src_fi))
+        subprocess.call(["/home/elainey/backup/pycharmProjects/yamlTest/runFIfileAcc.sh"],
+                        env={"PATH": "/home/elainey/anaconda/envs/tensorfi/bin/"})
     else:
         with open("Injected-0" + ".py", "w") as f:
             f.write(astor.to_source(parse_src_fi))
         arg1 = str(len(confiles))
-        subprocess.check_call(['/home/elaine/pycharmProjects/yamlTest/createFIfile.sh', arg1])
-        subprocess.call(["/home/elaine/pycharmProjects/yamlTest/runFIfile.sh", arg1],
-                        env={"PATH": "/home/elaine/.conda/envs/tensorfi/bin/"})
+        subprocess.check_call(['/home/elainey/backup/pycharmProjects/yamlTest/createFIfile.sh', arg1])
+        subprocess.call(["/home/elainey/backup/pycharmProjects/yamlTest/runFIfile.sh", arg1],
+                        env={"PATH": "/home/elainey/anaconda/envs/tensorfi/bin/"})
 
+    showRes()
+    fiButt.configure(text='Injection completed!')
+
+def showRes():
     if modeCombo.get() == 'Debug':
         # Execute the parsed code
         sdc = np.loadtxt('sdcRates.csv', delimiter='\n', unpack=True)
@@ -349,8 +357,6 @@ def injectFaults():
         # FIXME: add accuracy
         acc = np.loadtxt('accuracy.csv', delimiter='\n', unpack=True)
         accOnceLabel.configure(text='Accuracy with injections: ' + str(acc))
-
-
 
 #--------------
 # Parameters Part
