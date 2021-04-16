@@ -56,13 +56,13 @@ def addAcc(testX,
 # ----------------------Add accuracy printing function-----------------------------
 # E.g., print("Accuracy (with injections): {:.3f}".format(test_accuracy))
 
-def addFiles():
+def addFiles(writePat):
     body = []
     nameList = []
     argsList = []
     nameList.append(ast.Name('accFile', ast.Store()))
     argsList.append(ast.Str('accuracy.csv'))
-    argsList.append(ast.Str('w'))
+    argsList.append(ast.Str(writePat))
     assibody = ast.Assign(nameList, ast.Call(ast.Name('open', ast.Load()), argsList, [], None, None))
     body.append(assibody)
     return body
@@ -97,7 +97,8 @@ def addFi(parse_src, # Parsed code
           testX,
           testY,
           evaFun,
-          configFileName):  # Prefix to attach to each node inserted for fault injection
+          configFileName,
+          writePat):  # Prefix to attach to each node inserted for fault injection
 
 
     s = 'tf.Session' # This is the session from tensorFlow
@@ -136,7 +137,7 @@ def addFi(parse_src, # Parsed code
     for i in accBody:
         tiBody.append(i)
 
-    fileBody = addFiles()
+    fileBody = addFiles(writePat)
     for i in fileBody:
         tiBody.append(i)
 
@@ -161,7 +162,7 @@ if __name__ == '__main__':
     parse_src_import=addImport('./Tests/TEST-lenet-mnist-no-FI.py')
     parse_src_fi = addFi(parse_src_import,
                          'X_test', 'y_test', 'evaluate',
-                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml')
+                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml', 'w')
     print(astor.to_source(parse_src_fi))
     # with open('./Tests/TEST-lenet-mnist-no-FI.py', "r") as source:
     #     tree = ast.parse(source.read())

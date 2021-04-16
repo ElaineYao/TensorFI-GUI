@@ -227,8 +227,6 @@ def refresh_mode( ):
         feedValLabel.grid_forget()
         feedValEntry.grid_forget()
         feedDicButt.grid_forget()
-        numFILabel.grid_forget()
-        numFIEntry.grid_forget()
         corrPreLabel.grid_forget()
         correPreEntry.grid_forget()
     else:
@@ -246,11 +244,28 @@ def refresh_mode( ):
         feedKeyEntry.grid(row=14,column=1,padx=5, pady=5,sticky='w')
         feedValLabel.grid(row=14,column=2,padx=5, pady=5,sticky='w')
         feedValEntry.grid(row=14,column=3,padx=5, pady=5,sticky='w')
-        numFILabel.grid(row=13, column=2, padx=5, pady=5, sticky='w')
-        numFIEntry.grid(row=13,column=3,padx=5, pady=5,sticky='w')
         feedDicButt.grid(row=14,column=4,padx=5, pady=5,sticky='w')
-        corrPreLabel.grid(row=15, column = 2, padx = 5, pady = 5, sticky = 'w')
-        correPreEntry.grid(row=15, column = 3, padx = 5, pady = 5, sticky = 'w')
+        corrPreLabel.grid(row=13, column = 2, padx = 5, pady = 5, sticky = 'w')
+        correPreEntry.grid(row=13, column = 3, padx = 5, pady = 5, sticky = 'w')
+
+# --------------------
+# Callback function3 - formCombo
+
+def on_trace_form(name, index, mode):
+    refresh()
+
+def refresh_form( ):
+    choice = formCombo.get()
+    if choice == 'Figures':
+        # TODO
+        disLabel.grid_forget()
+    elif choice == 'Statistic data':
+        # TODO
+        disLabel.grid_forget()
+    else:
+        # TODO
+        disLabel.grid_forget()
+
 
     # BrowseFiles
 def browseFiles():
@@ -314,6 +329,14 @@ def injectFaults():
     generateYaml()
     browseConfFiles()
     loglValue = 0
+    writePattern = 'a'
+
+    origConfFile = 'accuracy.csv'
+    if os.path.exists(origConfFile):
+        os.remove(origConfFile)
+
+    if modeCombo2.get() == 'Single':
+        writePattern = 'w'
 
     if modeCombo.get() == 'Debug':
         loglValue = eval(loglCombo.get())
@@ -326,7 +349,7 @@ def injectFaults():
         parse_src_import = inCdAc.addImport('./Tests/lenet-mnist-no-FI.py')
         parse_src_fi = inCdAc.addFi(parse_src_import,
                                     testXEntry.get(), testYEntry.get(), accuEntry.get(),
-                                    confiles[0])
+                                    confiles[0], writePattern)
 
     # FIXME:
     if len(confiles) == 1:
@@ -356,7 +379,7 @@ def showRes():
     else:
         # FIXME: add accuracy
         acc = np.loadtxt('accuracy.csv', delimiter='\n', unpack=True)
-        accOnceLabel.configure(text='Accuracy with injections: ' + str(acc))
+        formLable.configure(text='Accuracy with injections: ' + str(acc))
 
 #--------------
 # Parameters Part
@@ -377,6 +400,9 @@ opsLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Operatio
                     .grid(row = 7, column = 0, padx = 5, pady = 5, sticky = 'w')
 ProbLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Probability: ")\
                     .grid(row = 7, column = 2, padx = 5, pady = 5, sticky = 'w')
+ProbExpLable = tk.Label(second_frame, font = ("Times New Roman", 10), text="(Start:End:Step)")\
+                    .grid(row = 7, column = 4, padx = 5, pady = 5, sticky = 'w')
+
 # ops2Label = tk.Label(second_frame, font = ("Times New Roman", 10), text=": ")\
 #                     .grid(row = 7, column = 4)
 # ops3Label = tk.Label(second_frame, font = ("Times New Roman", 10), text=": ")\
@@ -393,9 +419,9 @@ sourLabel = tk.Label(second_frame, text="Source file: ", font = ("Times New Roma
 modeLabel = tk.Label(second_frame, text="Mode:", font = ("Times New Roman", 10)).grid(row=10, column = 2, padx = 5, pady = 5, sticky = 'w')
 accuLabel = tk.Label(second_frame, text="Accuracy function: ", font = ("Times New Roman", 10)).grid(row=15, column = 0, padx = 5, pady = 5, sticky = 'w')
 corrPreLabel = tk.Label(second_frame, text="Correct Prediction: ", font = ("Times New Roman", 10))
-testXLabel = tk.Label(second_frame, text="Test set (X): ", font = ("Times New Roman", 10))
+testXLabel = tk.Label(second_frame, text="Input: ", font = ("Times New Roman", 10))
 testXLabel.grid(row=16, column = 0, padx = 5, pady = 5, sticky = 'w')
-testYLabel = tk.Label(second_frame, text="Test set (Y): ", font = ("Times New Roman", 10))
+testYLabel = tk.Label(second_frame, text="Output: ", font = ("Times New Roman", 10))
 testYLabel.grid(row=16, column = 2, padx = 5, pady = 5, sticky = 'w')
 # Debugging mode
 disLabel = tk.Label(second_frame, text="disableInjections:", font = ("Times New Roman", 10))
@@ -404,6 +430,7 @@ loglLabel = tk.Label(second_frame, text="logLevel:", font = ("Times New Roman", 
 namelabel = tk.Label(second_frame, text="name:", font = ("Times New Roman", 10))
 fiplabel = tk.Label(second_frame, text="fiPrefix:", font = ("Times New Roman", 10))
 numFILabel = tk.Label(second_frame, text="Number of injections: ", font = ("Times New Roman", 10))
+numFILabel.grid(row=15, column=2, padx=5, pady=5, sticky='w')
 feedKeyLabel = tk.Label(second_frame, text="Feed key: ", font = ("Times New Roman", 10))
 feedValLabel = tk.Label(second_frame, text="Feed value: ", font = ("Times New Roman", 10))
 
@@ -480,6 +507,10 @@ skipText.set(0)
 nameText = tk.StringVar()
 nameEntry = tk.Entry(second_frame,bd=3, width = 8,textvariable=nameText)
 nameText.set('noname')
+numFItext = tk.StringVar()
+numFIEntry = tk.Entry(second_frame,bd=3, width = 15, textvariable=numFItext)
+numFItext.set('5')
+numFIEntry.grid(row=15,column=3,padx=5, pady=5,sticky='w')
 fipText = tk.StringVar()
 fipEntry = tk.Entry(second_frame,bd=3, width = 8, textvariable=fipText)
 fipText.set('fi_')
@@ -494,13 +525,13 @@ testYEntry = tk.Entry(second_frame,bd=3, width = 15)
 testYEntry.grid(row=16, column = 3, padx = 5, pady = 5, sticky = 'w')
 
 # Debugging mode
-numFIEntry = tk.Entry(second_frame,bd=3, width = 15)
+
 feedKeyEntry = tk.Entry(second_frame,bd=3, width = 15)
 feedValEntry = tk.Entry(second_frame,bd=3, width = 15)
 
 # Button - Click to generate default.yaml file
 opButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addOp)
-opButt.grid(row=7, column=4)
+opButt.grid(row=7, column=5)
 insButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Add", command=addIns, state="disabled")
 insButt.grid(row=8, column=4)
 fileButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Select", command=browseFiles)
@@ -564,10 +595,16 @@ def check(entry):
 #-----------------
 # Results
 resTitleLabel = tk.Label(second_frame, text="Results", font = ('Times New Roman', 12, 'bold')).grid(row=19, column = 0, padx = 5, pady = 25, sticky = 'w')
-accOnceLabel = tk.Label(second_frame, text="Accuracy with injection: ", font=('Times New Roman', 10))
-accOnceLabel.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
+formLable = tk.Label(second_frame, text="Output forms: ", font=('Times New Roman', 10))
+formLable.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
+formModeVar = tk.StringVar()
+formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['Figures', 'Statistic data', 'Export to a CSV file'], width = 8)
+formCombo.grid(row=20, column = 1, padx = 5, pady = 5, sticky = 'w')
+formCombo.current(0)
+formModeVar.trace('w', on_trace_form)
+# FIXME: change the size of formCombo
 
-# FIXME: ADD sdcOnceLable
 
+# Add formCombo click function
 
 root.mainloop()
