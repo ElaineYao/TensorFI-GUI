@@ -252,19 +252,46 @@ def refresh_mode( ):
 # Callback function3 - formCombo
 
 def on_trace_form(name, index, mode):
-    refresh()
+    refresh_form()
 
 def refresh_form( ):
     choice = formCombo.get()
     if choice == 'Figures':
         # TODO
-        disLabel.grid_forget()
-    elif choice == 'Statistic data':
+        # showfig
+
+        # forget data
+        statLabel.grid_forget()
+        # forget csv
+        csvLabel.grid_forget()
+        csvButt.grid_forget()
+        csvEntry.grid_forget()
+        csvdotLabel.grid_forget()
+
+    elif choice == 'Statistic data (accuracy)':
         # TODO
-        disLabel.grid_forget()
+        # show data
+        statLabel.grid(row=21, column=1, padx=5, pady=5, sticky='w')
+
+        # forget figure
+        # forget csv
+        csvLabel.grid_forget()
+        csvButt.grid_forget()
+        csvEntry.grid_forget()
+        csvdotLabel.grid_forget()
+
     else:
-        # TODO
-        disLabel.grid_forget()
+
+        # forget data
+        statLabel.grid_forget()
+
+
+        # show csv
+        # TODO - export the csv file
+        csvLabel.grid(row=20,column=2,padx=5, pady=5,sticky='w')
+        csvEntry.grid(row=20,column=3,padx=5, pady=5,sticky='w')
+        csvdotLabel.grid(row=20,column=4,padx=5, pady=5,sticky='w')
+        csvButt.grid(row=20, column=5, padx=5, pady=5, sticky='w')
 
 
     # BrowseFiles
@@ -317,6 +344,9 @@ def addDict():
     feedLabel1.grid(row=17, column=20)
     feedLabel1.after(1000, feedLabel1.destroy)
 
+# TODO: Export the csv file
+def exportCSV():
+    print("FIXME: exportCSV")
 
 # ------------------------
 # Fault injection
@@ -598,11 +628,27 @@ resTitleLabel = tk.Label(second_frame, text="Results", font = ('Times New Roman'
 formLable = tk.Label(second_frame, text="Output forms: ", font=('Times New Roman', 10))
 formLable.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
 formModeVar = tk.StringVar()
-formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['Figures', 'Statistic data', 'Export to a CSV file'], width = 8)
+formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['Figures', 'Statistic data (accuracy)', 'Export to a CSV file'], width = 25)
 formCombo.grid(row=20, column = 1, padx = 5, pady = 5, sticky = 'w')
-formCombo.current(0)
+formCombo.current(1)
 formModeVar.trace('w', on_trace_form)
-# FIXME: change the size of formCombo
+
+# Debugging mode
+
+# Statistics option
+statLabel = tk.Label(second_frame, font = ("Times New Roman", 10))
+# TODO: Calculate the data
+mean = 2
+std  = 2
+mind = 1
+maxd = 2
+statLabel.configure(text='Mean: ' + str(mean) + ', Standard deviation: ' + str(std) + ', Min: ' + str(mind) + ', Max: ' + str(maxd))
+
+# CSV option
+csvLabel = tk.Label(second_frame, text="CSV filename: ", font = ("Times New Roman", 10))
+csvdotLabel = tk.Label(second_frame, text=".csv ", font = ("Times New Roman", 10))
+csvEntry = tk.Entry(second_frame,bd=3, width = 15)
+csvButt = tk.Button(second_frame, font = ("Times New Roman", 10),text="Export", command=exportCSV)
 
 
 # Add formCombo click function
