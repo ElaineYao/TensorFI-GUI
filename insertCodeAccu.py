@@ -42,7 +42,7 @@ def addImport(fPath):
 def addAcc(testX,
            testY,
            evaFun):
-    body = []
+    # body = []
     nameList = []
     nameList.append(ast.Name('test_accuracy', ast.Store()))
     argList = []
@@ -50,25 +50,36 @@ def addAcc(testX,
     argList.append(ast.Name(testY, ast.Load()))
     accCall = ast.Call(ast.Name(evaFun, ast.Load()),argList, [], None, None)
     assiName = ast.Assign(nameList, accCall)
-    body.append(assiName)
-    return body
+    return assiName
+    # body.append(assiName)
+    # return body
 
-# ----------------------Add accuracy printing function-----------------------------
-# E.g., print("Accuracy (with injections): {:.3f}".format(test_accuracy))
-
-def addFiles(writePat):
+# ----------------------Add accuracy function-----------------------------
+# E.g., accFile = open('accuracy.csv', 'a')
+def addFiles(csvName):
     body = []
     nameList = []
     argsList = []
     nameList.append(ast.Name('accFile', ast.Store()))
-    argsList.append(ast.Str('accuracy.csv'))
-    argsList.append(ast.Str(writePat))
+    argsList.append(ast.Str(csvName))
+    argsList.append(ast.Str('a'))
     assibody = ast.Assign(nameList, ast.Call(ast.Name('open', ast.Load()), argsList, [], None, None))
     body.append(assibody)
     return body
 
-def writeFiles():
+# E.g., fiCount = 1000
+
+def addCount(num):
     body = []
+    nameList = []
+    nameList.append(ast.Name('fiCount', ast.Store()))
+    assibody = ast.Assign(nameList, ast.Num(num))
+    body.append(assibody)
+    return body
+
+
+def writeFiles():
+    # body = []
     binList = []
     nameList = []
     nameList.append(ast.Name('test_accuracy', ast.Load()))
@@ -83,8 +94,33 @@ def writeFiles():
                                 [],
                                 None,
                                 None))
-    body.append(expbody)
-    return body
+    return expbody
+    # body.append(expbody)
+    # return body
+
+
+# E.g.,
+#     for j in range(fiCount):
+#         test_accuracy = evaluate(X_test, y_test)
+#         accFile.write(str(test_accuracy) + '\n')
+
+def addForloop(testX, testY, evaFun):
+    # body = []
+    nameList = []
+    nameList.append(ast.Name('fiCount', ast.Load()))
+    mainbody = []
+    accBody = addAcc(testX, testY, evaFun)
+    writeBody = writeFiles()
+    mainbody.append(accBody)
+    mainbody.append(writeBody)
+    forbody = ast.For(ast.Name('j', ast.Store()),
+                      ast.Call(ast.Name('range', ast.Load()), nameList, [], None, None),
+                      mainbody,
+                      []
+                      )
+    return forbody
+    # body.append(forbody)
+    # return body
 
 
 
@@ -98,7 +134,8 @@ def addFi(parse_src, # Parsed code
           testY,
           evaFun,
           configFileName,
-          writePat):  # Prefix to attach to each node inserted for fault injection
+          csvName,
+          num):  # Prefix to attach to each node inserted for fault injection
 
 
     s = 'tf.Session' # This is the session from tensorFlow
@@ -133,17 +170,17 @@ def addFi(parse_src, # Parsed code
 
     tiBody.append(ast.Assign(fiNameList, tiCall))
 
-    accBody = addAcc(testX, testY, evaFun)
-    for i in accBody:
-        tiBody.append(i)
-
-    fileBody = addFiles(writePat)
+    fileBody = addFiles(csvName)
     for i in fileBody:
         tiBody.append(i)
 
-    writeBody = writeFiles()
-    for i in writeBody:
+    countBody = addCount(num)
+    for i in countBody:
         tiBody.append(i)
+
+    loopBody = addForloop(testX, testY, evaFun)
+    # for i in loopBody:
+    tiBody.append(loopBody)
 
     for i in range(len(tiBody)):
         withNode.body.insert(pos + i, tiBody[i])
@@ -158,12 +195,10 @@ def addFi(parse_src, # Parsed code
 
 
 if __name__ == '__main__':
-    # parse_src_import=addImport('./Tests/lenet-mnist-no-FI.py')
-    parse_src_import=addImport('./Tests/TEST-lenet-mnist-no-FI.py')
+    parse_src_import=addImport('./Tests/lenet-mnist-no-FI.py')
     parse_src_fi = addFi(parse_src_import,
                          'X_test', 'y_test', 'evaluate',
-                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml', 'w')
+                         '/home/elaine/pycharmProjects/yamlTest/test-1.yaml', 'accuracy', 100)
+
+
     print(astor.to_source(parse_src_fi))
-    # with open('./Tests/TEST-lenet-mnist-no-FI.py', "r") as source:
-    #     tree = ast.parse(source.read())
-    #     print(ast.dump(tree))
