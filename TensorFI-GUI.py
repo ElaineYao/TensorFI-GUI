@@ -16,10 +16,17 @@ import astor
 import subprocess
 import matplotlib.pyplot as plt
 import shutil
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 
 root = tk.Tk()
 root.title('TensorFI')
+# FIXME
 root.geometry('890x650')
+# root.geometry("+%d+%d" % (self.window_start_x, self.window_start_y))
 
 main_frame = tk.Frame(root)
 main_frame.pack(fill=tk.BOTH, expand=1)
@@ -260,6 +267,21 @@ def refresh_form( ):
     if choice == 'Figures':
         # TODO
         # showfig
+        statLabel.grid_forget()
+
+        fig = Figure(figsize=(5, 4), dpi=100)
+        t = np.arange(1, 1 + int(numFIEntry.get())).astype(dtype=np.str)
+        y1 = np.loadtxt('./accuracy.csv', delimiter='\n', unpack=True)
+
+        axes = fig.add_subplot(111)
+        axes.plot(t, y1)
+        axes.set_title('Accuracy per time')
+        axes.set_xlabel("Index of fault injection")
+        axes.set_ylabel("Accuracy")
+
+        canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tkinter.BOTTOM, fill=tkinter.NONE, expand=0)
 
         # forget data
         statLabel.grid_forget()
@@ -294,8 +316,6 @@ def refresh_form( ):
     else:
 
         # forget data
-        statLabel.grid_forget()
-
 
         # show csv
         # TODO - export the csv file

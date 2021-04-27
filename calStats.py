@@ -26,5 +26,5 @@ def calMax(csvPath):
     return max(y)
 
 if __name__ == '__main__':
-    ave = calmsd('./accuracy')
+    ave = calmsd('./accuracy.csv')
     print(ave)
