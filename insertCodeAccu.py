@@ -61,7 +61,7 @@ def addFiles(csvName):
     nameList = []
     argsList = []
     nameList.append(ast.Name('accFile', ast.Store()))
-    argsList.append(ast.Str(csvName))
+    argsList.append(ast.Str(csvName+'.csv'))
     argsList.append(ast.Str('a'))
     assibody = ast.Assign(nameList, ast.Call(ast.Name('open', ast.Load()), argsList, [], None, None))
     body.append(assibody)
@@ -199,6 +199,5 @@ if __name__ == '__main__':
     parse_src_fi = addFi(parse_src_import,
                          'X_test', 'y_test', 'evaluate',
                          '/home/elaine/pycharmProjects/yamlTest/test-1.yaml', 'accuracy', 100)
-
-
     print(astor.to_source(parse_src_fi))
+    # exec (compile(parse_src_fi, filename="", mode="exec"))

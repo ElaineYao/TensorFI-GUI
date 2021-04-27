@@ -7,6 +7,7 @@ import ttk
 import ruamel_yaml as yaml
 import insertCode as inCd
 import insertCodeAccu as inCdAc
+import calStats as calS
 import logging
 import os
 import csv
@@ -272,7 +273,17 @@ def refresh_form( ):
         # TODO
         # show data
         statLabel.grid(row=21, column=1, padx=5, pady=5, sticky='w')
+        statLabel.configure(text='Mean: ' + str(calS.calAve('./accuracy.csv')) + ', Standard deviation: ' + str(calS.calmsd('./accuracy.csv')) + ', Min: ' + str(calS.calMin('./accuracy.csv')) + ', Max: ' + str(
+                calS.calMax('./accuracy.csv')))
 
+        # global mean
+        # mean = calS.calAve('./accuracy.csv')
+        # global std
+        # std = calS.calmsd('./accuracy.csv')
+        # global mind
+        # mind = calS.calmin('./accuracy.csv')
+        # global maxd
+        # maxd = calS.calmin('./accuracy.csv')
         # forget figure
         # forget csv
         csvLabel.grid_forget()
@@ -379,7 +390,7 @@ def injectFaults():
         parse_src_import = inCdAc.addImport('./Tests/lenet-mnist-no-FI.py')
         parse_src_fi = inCdAc.addFi(parse_src_import,
                                     testXEntry.get(), testYEntry.get(), accuEntry.get(),
-                                    confiles[0], writePattern)
+                                    confiles[0], 'accuracy', int(numFIEntry.get()))
 
     # FIXME:
     if len(confiles) == 1:
@@ -396,9 +407,10 @@ def injectFaults():
         subprocess.call(["/home/elainey/backup/pycharmProjects/yamlTest/runFIfile.sh", arg1],
                         env={"PATH": "/home/elainey/anaconda/envs/tensorfi/bin/"})
 
-    showRes()
+    # showRes()
     fiButt.configure(text='Injection completed!')
 
+# FIXME: to be modified or deleted
 def showRes():
     if modeCombo.get() == 'Debug':
         # Execute the parsed code
@@ -410,6 +422,7 @@ def showRes():
         # FIXME: add accuracy
         acc = np.loadtxt('accuracy.csv', delimiter='\n', unpack=True)
         formLable.configure(text='Accuracy with injections: ' + str(acc))
+
 
 #--------------
 # Parameters Part
