@@ -14,6 +14,7 @@ import csv
 import numpy as np
 import astor
 import subprocess
+import matplotlib
 import matplotlib.pyplot as plt
 import shutil
 from matplotlib.backends.backend_tkagg import (
@@ -21,6 +22,7 @@ from matplotlib.backends.backend_tkagg import (
 # Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+import geneTable as geTable
 
 root = tk.Tk()
 root.title('TensorFI')
@@ -268,16 +270,38 @@ def refresh_form( ):
         # TODO
         # showfig
         statLabel.grid_forget()
+        index = 0
+        for i in range(total_rows):
+            for j in range(total_columns):
+                labels[index].grid_forget()
+                index += 1
 
         fig = Figure(figsize=(5, 4), dpi=100)
-        t = np.arange(1, 1 + int(numFIEntry.get())).astype(dtype=np.str)
-        y1 = np.loadtxt('./accuracy.csv', delimiter='\n', unpack=True)
+        if modeCombo2.get() == 'Single':
+            t = np.arange(1, 1 + int(numFIEntry.get())).astype(dtype=np.str)
+            y1 = np.loadtxt('./accuracy.csv', delimiter='\n', unpack=True)
+            axes = fig.add_subplot(111)
+            axes.plot(t, y1)
+            axes.set_title('Accuracy per fault injection')
+            axes.set_xlabel("Index of fault injection")
+            axes.set_ylabel("Accuracy")
+            # fig.savefig('figure-single')
+            # top = tk.Toplevel(second_frame)
+            # top.destroy()
+        else:
+            y1 = []
+            for i in range(len(lst)-1):
+                tup = lst[i+1]
+                y1.append(tup[1])
+            t = np.arange(1, total_rows).astype(dtype=np.str)
+            axes = fig.add_subplot(111)
+            axes.plot(t, y1)
+            axes.set_title('Accuracy per setting')
+            axes.set_xlabel("Index of setting")
+            axes.set_ylabel("Accuracy")
 
-        axes = fig.add_subplot(111)
-        axes.plot(t, y1)
-        axes.set_title('Accuracy per time')
-        axes.set_xlabel("Index of fault injection")
-        axes.set_ylabel("Accuracy")
+
+
 
         canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
         canvas.draw()
@@ -291,23 +315,27 @@ def refresh_form( ):
         csvEntry.grid_forget()
         csvdotLabel.grid_forget()
 
+
+
     elif choice == 'Statistic data (accuracy)':
         # TODO
         # show data
-        statLabel.grid(row=21, column=1, padx=5, pady=5, sticky='w')
-        statLabel.configure(text='Mean: ' + str(calS.calAve('./accuracy.csv')) + ', Standard deviation: ' + str(calS.calmsd('./accuracy.csv')) + ', Min: ' + str(calS.calMin('./accuracy.csv')) + ', Max: ' + str(
-                calS.calMax('./accuracy.csv')))
+        # if modeCombo2.get() == 'Single':
+        #     statLabel.grid(row=21, column=1, padx=5, pady=5, sticky='w')
+        #     statLabel.configure(text='Mean: ' + str(calS.calAve('./accuracy.csv')) + ', Standard deviation: ' + str(calS.calmsd('./accuracy.csv')) + ', Min: ' + str(calS.calMin('./accuracy.csv')) + ', Max: ' + str(
+        #         calS.calMax('./accuracy.csv')))
+        #     index = 0
+        #     for i in range(total_rows):
+        #         for j in range(total_columns):
+        #             labels[index].grid_forget()
+        #             index += 1
+        # else:
+        index = 0
+        for i in range(total_rows):
+            for j in range(total_columns):
+                labels[index].grid(row=i + 23, column=j)
+                index += 1
 
-        # global mean
-        # mean = calS.calAve('./accuracy.csv')
-        # global std
-        # std = calS.calmsd('./accuracy.csv')
-        # global mind
-        # mind = calS.calmin('./accuracy.csv')
-        # global maxd
-        # maxd = calS.calmin('./accuracy.csv')
-        # forget figure
-        # forget csv
         csvLabel.grid_forget()
         csvButt.grid_forget()
         csvEntry.grid_forget()
@@ -323,6 +351,11 @@ def refresh_form( ):
         csvEntry.grid(row=20,column=3,padx=5, pady=5,sticky='w')
         csvdotLabel.grid(row=20,column=4,padx=5, pady=5,sticky='w')
         csvButt.grid(row=20, column=5, padx=5, pady=5, sticky='w')
+        index = 0
+        for i in range(total_rows):
+            for j in range(total_columns):
+                labels[index].grid_forget()
+                index += 1
 
 
     # BrowseFiles
@@ -429,6 +462,22 @@ def injectFaults():
 
     # showRes()
     fiButt.configure(text='Injection completed!')
+    global lst
+    global total_rows
+    global total_columns
+    global labels
+    lst = []
+    lst = geTable.geneTable(int(numFIEntry.get()), './accuracy.csv')
+    total_rows = len(lst)
+    total_columns = len(lst[0])
+
+    labels = []
+    index = 0
+    for i in range(total_rows):
+        for j in range(total_columns):
+            statLabel = tk.Label(second_frame, font=('Times New Roman', 10, 'bold'), text=lst[i][j])
+            labels.append(statLabel)
+        index += 1
 
 # FIXME: to be modified or deleted
 def showRes():
@@ -453,7 +502,7 @@ paraTitlelabel = tk.Label(second_frame, text="Configuration", font = ('Times New
 
 injectLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="InjectMode: ")\
                     .grid(row = 5, column = 0, padx = 5, pady = 5, sticky = 'w')
-modeLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="Mode: ")\
+modeLabel2 = tk.Label(second_frame, font = ("Times New Roman", 10), text="configMode: ")\
                     .grid(row = 5, column = 2, padx = 5, pady = 5, sticky = 'w')
 scalarLabel = tk.Label(second_frame, font = ("Times New Roman", 10), text="ScalarFaultType: ")\
                     .grid(row = 6, column = 0, padx = 5, pady = 5, sticky = 'w')
@@ -668,7 +717,7 @@ formModeVar.trace('w', on_trace_form)
 
 # Debugging mode
 
-# Statistics option
+# Statistics option - Single
 statLabel = tk.Label(second_frame, font = ("Times New Roman", 10))
 # TODO: Calculate the data
 mean = 2
@@ -676,6 +725,22 @@ std  = 2
 mind = 1
 maxd = 2
 statLabel.configure(text='Mean: ' + str(mean) + ', Standard deviation: ' + str(std) + ', Min: ' + str(mind) + ', Max: ' + str(maxd))
+
+# Statistics option - Multiple
+
+# lst = geTable.geneTable(int(numFIEntry.get()), './accuracy.csv')
+
+# total_rows = len(lst)
+# total_columns = len(lst[0])
+#
+# labels = []
+# index = 0
+# for i in range(total_rows):
+# 	for j in range(total_columns):
+# 		statLabel = tk.Label(second_frame, font=('Times New Roman', 10, 'bold'), text=lst[i][j])
+# 		labels.append(statLabel)
+#         labels[index].grid(row=i + 23, column=j)
+#         index +=1
 
 # CSV option
 csvLabel = tk.Label(second_frame, text="CSV filename: ", font = ("Times New Roman", 10))
