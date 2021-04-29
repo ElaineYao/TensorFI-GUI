@@ -277,15 +277,22 @@ def refresh_form( ):
                 index += 1
 
         fig = Figure(figsize=(5, 4), dpi=100)
+        root2 = tk.Toplevel()
+        canvas = FigureCanvasTkAgg(fig, master=root2)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tkinter.BOTTOM, fill=tkinter.NONE, expand=0)
+
         if modeCombo2.get() == 'Single':
             t = np.arange(1, 1 + int(numFIEntry.get())).astype(dtype=np.str)
-            y1 = np.loadtxt('./accuracy.csv', delimiter='\n', unpack=True)
+            y1 = np.loadtxt('./origin.csv', delimiter='\n', unpack=True)
             axes = fig.add_subplot(111)
             axes.plot(t, y1)
             axes.set_title('Accuracy per fault injection')
-            axes.set_xlabel("Index of fault injection")
-            axes.set_ylabel("Accuracy")
-            # fig.savefig('figure-single')
+            # axes.set_xlabel("Index of fault injection")
+            # axes.set_ylabel("Accuracy")
+
+
+            # figg.savefig('figure-single')
             # top = tk.Toplevel(second_frame)
             # top.destroy()
         else:
@@ -302,11 +309,6 @@ def refresh_form( ):
 
 
 
-
-        canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tkinter.BOTTOM, fill=tkinter.NONE, expand=0)
-
         # forget data
         statLabel.grid_forget()
         # forget csv
@@ -322,8 +324,8 @@ def refresh_form( ):
         # show data
         # if modeCombo2.get() == 'Single':
         #     statLabel.grid(row=21, column=1, padx=5, pady=5, sticky='w')
-        #     statLabel.configure(text='Mean: ' + str(calS.calAve('./accuracy.csv')) + ', Standard deviation: ' + str(calS.calmsd('./accuracy.csv')) + ', Min: ' + str(calS.calMin('./accuracy.csv')) + ', Max: ' + str(
-        #         calS.calMax('./accuracy.csv')))
+        #     statLabel.configure(text='Mean: ' + str(calS.calAve('./origin.csv')) + ', Standard deviation: ' + str(calS.calmsd('./origin.csv')) + ', Min: ' + str(calS.calMin('./origin.csv')) + ', Max: ' + str(
+        #         calS.calMax('./origin.csv')))
         #     index = 0
         #     for i in range(total_rows):
         #         for j in range(total_columns):
@@ -410,7 +412,23 @@ def addDict():
 
 # TODO: Export the csv file
 def exportCSV():
-    print("FIXME: exportCSV")
+    csvName = csvEntry.get() + '.csv'
+    numFI = int(numFIEntry.get())
+    y = np.loadtxt('./origin.csv', delimiter='\n', unpack=True)
+    cols = numFI
+    rows = len(y)/numFI
+    csv_list = []
+    for i in range(rows):
+        per_list = []
+        for j in range(cols):
+            per_list.append(y[i*rows+j])
+        csv_list.append(per_list)
+    with open(csvName, 'wb') as file:
+        writer = csv.writer(file)
+        writer.writerows(csv_list)
+    csvgLabel = tk.Label(second_frame, text='Successfully exported!')
+    csvgLabel.grid(row=20, column=5)
+    csvgLabel.after(1000, csvgLabel.destroy)
 
 # ------------------------
 # Fault injection
@@ -467,7 +485,7 @@ def injectFaults():
     global total_columns
     global labels
     lst = []
-    lst = geTable.geneTable(int(numFIEntry.get()), './accuracy.csv')
+    lst = geTable.geneTable(int(numFIEntry.get()), './origin.csv')
     total_rows = len(lst)
     total_columns = len(lst[0])
 
@@ -728,7 +746,7 @@ statLabel.configure(text='Mean: ' + str(mean) + ', Standard deviation: ' + str(s
 
 # Statistics option - Multiple
 
-# lst = geTable.geneTable(int(numFIEntry.get()), './accuracy.csv')
+# lst = geTable.geneTable(int(numFIEntry.get()), './origin.csv')
 
 # total_rows = len(lst)
 # total_columns = len(lst[0])
