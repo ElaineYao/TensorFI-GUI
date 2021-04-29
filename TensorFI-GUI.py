@@ -461,7 +461,7 @@ def injectFaults():
         parse_src_import = inCdAc.addImport('./Tests/lenet-mnist-no-FI.py')
         parse_src_fi = inCdAc.addFi(parse_src_import,
                                     testXEntry.get(), testYEntry.get(), accuEntry.get(),
-                                    confiles[0], 'accuracy', int(numFIEntry.get()))
+                                    confiles[0], 'origin', int(numFIEntry.get()))
 
     # FIXME:
     if len(confiles) == 1:
