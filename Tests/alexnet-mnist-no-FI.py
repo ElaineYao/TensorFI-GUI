@@ -115,6 +115,13 @@ correct_pred = tf.equal(tf.argmax(pred,1), tf.argmax(y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 saver = tf.train.Saver()
 
+# Elaine- Accuracy
+def evaluate(X_data, y_data):
+    accu = sess.run(accuracy, feed_dict={x: X_data, y: y_data,
+                                  keep_prob: 1.})
+    return accu
+
+
 # Initializing the variables
 init = tf.initialize_all_variables()
 
@@ -144,7 +151,10 @@ with tf.Session() as sess:
     saver.restore(sess, tf.train.latest_checkpoint('/home/elainey/backup/pycharmProjects/yamlTest/Tests/alexnet-checkpoint/'))
     X_test = mnist.test.images[:256]
     y_test = mnist.test.labels[:256]
-    print "Testing Accuracy:", sess.run(accuracy, feed_dict={x: mnist.test.images[:256], y: mnist.test.labels[:256],
-                                                             keep_prob: 1.})
+    # print "Testing Accuracy:", sess.run(accuracy, feed_dict={x: mnist.test.images[:256], y: mnist.test.labels[:256],
+    #                                                          keep_prob: 1.})
+    # acc = evaluate(X_test, y_test)
+    # print("Accuracy (with no injections): {:.3f}".format(acc))
+
 
 

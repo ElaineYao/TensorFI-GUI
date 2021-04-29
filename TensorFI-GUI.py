@@ -276,7 +276,7 @@ def refresh_form( ):
                 labels[index].grid_forget()
                 index += 1
 
-        fig = Figure(figsize=(5, 4), dpi=100)
+        fig = Figure(figsize=(6, 5), dpi=100)
         root2 = tk.Toplevel()
         canvas = FigureCanvasTkAgg(fig, master=root2)  # A tk.DrawingArea.
         canvas.draw()
@@ -443,7 +443,7 @@ def injectFaults():
     loglValue = 0
     writePattern = 'a'
 
-    origConfFile = 'accuracy.csv'
+    origConfFile = 'origin.csv'
     if os.path.exists(origConfFile):
         os.remove(origConfFile)
 
@@ -458,7 +458,7 @@ def injectFaults():
                                   nameEntry.get(), fipEntry.get())
     else:
         dirpath = ' '
-        parse_src_import = inCdAc.addImport('./Tests/lenet-mnist-no-FI.py')
+        parse_src_import = inCdAc.addImport(sourcefile)
         parse_src_fi = inCdAc.addFi(parse_src_import,
                                     testXEntry.get(), testYEntry.get(), accuEntry.get(),
                                     confiles[0], 'origin', int(numFIEntry.get()))
@@ -728,9 +728,9 @@ resTitleLabel = tk.Label(second_frame, text="Results", font = ('Times New Roman'
 formLable = tk.Label(second_frame, text="Output forms: ", font=('Times New Roman', 10))
 formLable.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
 formModeVar = tk.StringVar()
-formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['Figures', 'Statistic data (accuracy)', 'Export to a CSV file'], width = 25)
+formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['', 'Figures', 'Statistic data (accuracy)', 'Export to a CSV file'], width = 25)
 formCombo.grid(row=20, column = 1, padx = 5, pady = 5, sticky = 'w')
-formCombo.current(1)
+formCombo.current(0)
 formModeVar.trace('w', on_trace_form)
 
 # Debugging mode
