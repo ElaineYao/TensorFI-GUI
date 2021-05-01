@@ -53,7 +53,7 @@ insList = []
 
 # Generate default.yaml file
 def generateYaml():
-    if modeCombo2.get() == 'Single':
+    if var == 1:
         seed = seedEntry.get()
         scalarFaultType = scalarCombo.get()
         tensorFaultType = tensorCombo.get()
@@ -157,7 +157,7 @@ def generateYaml():
     geneLabel1.after(1000, geneLabel1.destroy)
 
 def addOp():
-    if modeCombo2.get() == 'Single':
+    if var.get() == 1:
         opsEle = opsCombo.get() + ' = ' + opsEntry.get()
         opsList.append(opsEle)
 
@@ -182,6 +182,14 @@ def addIns():
 # ------------------------
 # Callback function1
 
+def sel():
+    if var.get() == 2:
+        opsEntry2.config(state="normal")
+        opsEntry3.config(state="normal")
+    else:
+        opsEntry2.config(state="disabled")
+        opsEntry3.config(state="disabled")
+
 def on_trace_choice(name, index, mode):
     refresh()
 
@@ -194,12 +202,7 @@ def refresh( ):
         insCombo.configure(state="disabled")
         insEntry.config(state='disabled')
         insButt.config(state='disabled')
-        if modeCombo2.get() == 'Multiple':
-            opsEntry2.config(state="normal")
-            opsEntry3.config(state="normal")
-        else:
-            opsEntry2.config(state="disabled")
-            opsEntry3.config(state="disabled")
+
     else:
         # Both operations and Instances settings are enabled under dynamicInstance and oneFaultPerRun mode
         opsCombo.configure(state="normal")
@@ -208,12 +211,6 @@ def refresh( ):
         insCombo.configure(state='normal')
         insEntry.config(state='normal')
         insButt.config(state='normal')
-        if modeCombo2.get() == 'Multiple':
-            opsEntry2.config(state="normal")
-            opsEntry3.config(state="normal")
-        else:
-            opsEntry2.config(state="disabled")
-            opsEntry3.config(state="disabled")
 
 # -------------------
 # Callback function2
@@ -261,12 +258,10 @@ def refresh_mode( ):
 # --------------------
 # Callback function3 - formCombo
 
-def on_trace_form(name, index, mode):
-    refresh_form()
 
-def refresh_form( ):
-    choice = formCombo.get()
-    if choice == 'Figures':
+def formSel( ):
+    choice = formVar.get()
+    if choice == 2:
         # TODO
         # showfig
         statLabel.grid_forget()
@@ -282,7 +277,7 @@ def refresh_form( ):
         canvas.draw()
         canvas.get_tk_widget().pack(side=tkinter.BOTTOM, fill=tkinter.NONE, expand=0)
 
-        if modeCombo2.get() == 'Single':
+        if var.get() == 1:
             t = np.arange(1, 1 + int(numFIEntry.get())).astype(dtype=np.str)
             y1 = np.loadtxt('./origin.csv', delimiter='\n', unpack=True)
             axes = fig.add_subplot(111)
@@ -319,10 +314,10 @@ def refresh_form( ):
 
 
 
-    elif choice == 'Statistic data (accuracy)':
+    elif choice == 1:
         # TODO
         # show data
-        # if modeCombo2.get() == 'Single':
+        # if var.get() == 1:
         #     statLabel.grid(row=21, column=1, padx=5, pady=5, sticky='w')
         #     statLabel.configure(text='Mean: ' + str(calS.calAve('./origin.csv')) + ', Standard deviation: ' + str(calS.calmsd('./origin.csv')) + ', Min: ' + str(calS.calMin('./origin.csv')) + ', Max: ' + str(
         #         calS.calMax('./origin.csv')))
@@ -349,10 +344,10 @@ def refresh_form( ):
 
         # show csv
         # TODO - export the csv file
-        csvLabel.grid(row=20,column=2,padx=5, pady=5,sticky='w')
-        csvEntry.grid(row=20,column=3,padx=5, pady=5,sticky='w')
-        csvdotLabel.grid(row=20,column=4,padx=5, pady=5,sticky='w')
-        csvButt.grid(row=20, column=5, padx=5, pady=5, sticky='w')
+        csvLabel.grid(row=21,column=2,padx=5, pady=5,sticky='w')
+        csvEntry.grid(row=21,column=3,padx=5, pady=5,sticky='w')
+        csvdotLabel.grid(row=21,column=4,padx=5, pady=5,sticky='w')
+        csvButt.grid(row=21, column=5, padx=5, pady=5, sticky='w')
         index = 0
         for i in range(total_rows):
             for j in range(total_columns):
@@ -427,7 +422,7 @@ def exportCSV():
         writer = csv.writer(file)
         writer.writerows(csv_list)
     csvgLabel = tk.Label(second_frame, text='Successfully exported!')
-    csvgLabel.grid(row=20, column=5)
+    csvgLabel.grid(row=21, column=5)
     csvgLabel.after(1000, csvgLabel.destroy)
 
 # ------------------------
@@ -447,7 +442,7 @@ def injectFaults():
     if os.path.exists(origConfFile):
         os.remove(origConfFile)
 
-    if modeCombo2.get() == 'Single':
+    if var.get() == 1:
         writePattern = 'w'
 
     if modeCombo.get() == 'Debug':
@@ -496,6 +491,12 @@ def injectFaults():
             statLabel = tk.Label(second_frame, font=('Times New Roman', 10, 'bold'), text=lst[i][j])
             labels.append(statLabel)
         index += 1
+
+    index = 0
+    for i in range(total_rows):
+        for j in range(total_columns):
+            labels[index].grid(row=i + 23, column=j)
+            index += 1
 
 # FIXME: to be modified or deleted
 def showRes():
@@ -572,11 +573,15 @@ injectCombo.grid(row=5, column=1, sticky = 'w')
 injectCombo.current(0)
 choiceVar.trace("w", on_trace_choice)
 
-choiceVar2 = tk.StringVar()
-modeCombo2 = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar2, values=['Single', 'Multiple'])
-modeCombo2.grid(row=5, column=3, sticky = 'w')
-modeCombo2.current(0)
-choiceVar2.trace("w", on_trace_choice)
+# modeCombo2 = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), textvariable=choiceVar2, values=['Single', 'Multiple'])
+# modeCombo2.grid(row=5, column=3, sticky = 'w')
+# modeCombo2.current(0)
+var = tk.IntVar(second_frame,1)
+modeRadio1 = tk.Radiobutton(second_frame, width = 15, font = ("Times New Roman", 10), text='Single', value=1, variable = var, command = sel)
+modeRadio1.grid(row=5, column=3, sticky = 'w')
+modeRadio2 = tk.Radiobutton(second_frame, width = 15, font = ("Times New Roman", 10), text='Multiple', value=2, variable = var, command = sel)
+modeRadio2.grid(row=5, column=4, sticky = 'w')
+# choiceVar2.trace("w", on_trace_choice)
 
 
 scalarCombo = ttk.Combobox(second_frame, width = 15, font = ("Times New Roman", 10), values=['None', 'Rand', 'Zero', 'Rand-element', 'bitFlip-element', 'bitFlip-tensor'])
@@ -676,20 +681,6 @@ fiButt.grid(row=16, column = 4, padx = 5, pady = 5, sticky = 'w')
 
 
 
-def plot_eb(xList, fLabel, xLabel, yLabel, fTitle, picName):
-    x = []
-    for i in np.arange(xList[0], xList[1] + 0.0001, xList[2]):
-        x.append(i)
-    y3 = np.loadtxt('sdcRates.csv', delimiter=', ', unpack=True)
-    fig, ax = plt.subplots()
-    ax.plot(x, y3, label=fLabel)
-    ax.legend()
-    ax.plot()
-    ax.set(xlabel=xLabel, ylabel=yLabel,
-           title=fTitle)
-    ax.grid()
-
-    fig.savefig(picName)
 
 #-------
 
@@ -727,11 +718,20 @@ def check(entry):
 resTitleLabel = tk.Label(second_frame, text="Results", font = ('Times New Roman', 12, 'bold')).grid(row=19, column = 0, padx = 5, pady = 25, sticky = 'w')
 formLable = tk.Label(second_frame, text="Output forms: ", font=('Times New Roman', 10))
 formLable.grid(row=20, column = 0, padx = 5, pady = 5, sticky = 'w')
-formModeVar = tk.StringVar()
-formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['', 'Figures', 'Statistic data (accuracy)', 'Export to a CSV file'], width = 25)
-formCombo.grid(row=20, column = 1, padx = 5, pady = 5, sticky = 'w')
-formCombo.current(0)
-formModeVar.trace('w', on_trace_form)
+
+# formModeVar = tk.StringVar()
+# formCombo = ttk.Combobox(second_frame, font = ("Times New Roman", 10), textvariable=formModeVar, values=['', 'Figures', 'Statistic data (accuracy)', 'Export to a CSV file'], width = 25)
+# formCombo.grid(row=20, column = 1, padx = 5, pady = 5, sticky = 'w')
+# formCombo.current(0)
+# formModeVar.trace('w', on_trace_form)
+
+formVar = tk.IntVar(second_frame,1)
+formRadio1 = tk.Radiobutton(second_frame, width = 15, font = ("Times New Roman", 10), text='Statistics', value=1, variable = formVar, command = formSel)
+formRadio1.grid(row=20, column=1, sticky = 'w')
+formRadio2 = tk.Radiobutton(second_frame, width = 15, font = ("Times New Roman", 10), text='Graph', value=2, variable = formVar, command = formSel)
+formRadio2.grid(row=20, column=2, sticky = 'w')
+formRadio3 = tk.Radiobutton(second_frame, width = 15, font = ("Times New Roman", 10), text='Export to CSV', value=3, variable = formVar, command = formSel)
+formRadio3.grid(row=20, column=3, sticky = 'w')
 
 # Debugging mode
 
