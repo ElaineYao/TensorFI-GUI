@@ -10,7 +10,7 @@ TODO
 ## 4. Usage Guide
 TensorFI-GUI is shown as follows:
 
-![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Orig%20Interface.png)
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Prep%20interface.png)
 
 ### 4.1 Steps:
 
@@ -117,7 +117,7 @@ Represents the probability that a fault will be injected into that particular op
 
   Example: 
   
-  ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Prep%20Interface.png)
+  ![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Prep%20interface.png)
   
   You are almost done!
   
