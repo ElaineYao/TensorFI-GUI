@@ -363,10 +363,10 @@ def formSel( ):
 
         # show csv
         # TODO - export the csv file
-        csvLabel.grid(row=21,column=2,padx=5, pady=5,sticky='w')
-        csvEntry.grid(row=21,column=3,padx=5, pady=5,sticky='w')
-        csvdotLabel.grid(row=21,column=4,padx=5, pady=5,sticky='w')
-        csvButt.grid(row=21, column=5, padx=5, pady=5, sticky='w')
+        csvLabel.grid(row=21,column=0,padx=5, pady=5,sticky='w')
+        csvEntry.grid(row=21,column=1,padx=5, pady=5,sticky='w')
+        csvdotLabel.grid(row=21,column=2,padx=5, pady=5,sticky='w')
+        csvButt.grid(row=21, column=3, padx=5, pady=5, sticky='w')
         index = 0
         for i in range(total_rows):
             for j in range(total_columns):
