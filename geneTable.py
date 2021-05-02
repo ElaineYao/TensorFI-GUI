@@ -19,11 +19,11 @@ def geneTable(numFI, csvPath):
     for i in range(rows):
         y1 = y[i*numFI: (i+1)*numFI]
         for j in range(cols):
-            mean = sum(y1)/len(y1)
-            std = sum((x - mean) ** 2 for x in y1) / len(y1)
-            mint = min(y1)
-            maxt = max(y1)
-            oTuple = ( i+1, mean, std, mint, maxt)
+            mean = round(sum(y1)/len(y1), 3)
+            std = round(sum((x - mean) ** 2 for x in y1) / len(y1), 3)
+            mint = round(min(y1), 3)
+            maxt = round(max(y1), 3)
+            oTuple = ( str(i)+'-conf.yaml', mean, std, mint, maxt)
         lst.append(oTuple)
     return lst
 

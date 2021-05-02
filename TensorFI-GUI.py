@@ -28,6 +28,7 @@ root = tk.Tk()
 root.title('TensorFI')
 # FIXME
 root.geometry('890x650')
+root['bg'] = 'grey'
 # root.geometry("+%d+%d" % (self.window_start_x, self.window_start_y))
 
 main_frame = tk.Frame(root)
@@ -53,7 +54,8 @@ insList = []
 
 # Generate default.yaml file
 def generateYaml():
-    if var == 1:
+    print(var.get())
+    if var.get() == 1:
         seed = seedEntry.get()
         scalarFaultType = scalarCombo.get()
         tensorFaultType = tensorCombo.get()
@@ -271,37 +273,54 @@ def formSel( ):
                 labels[index].grid_forget()
                 index += 1
 
-        fig = Figure(figsize=(6, 5), dpi=100)
+        fig = plt.figure(figsize=(6, 6), dpi=100)
         root2 = tk.Toplevel()
         canvas = FigureCanvasTkAgg(fig, master=root2)  # A tk.DrawingArea.
         canvas.draw()
         canvas.get_tk_widget().pack(side=tkinter.BOTTOM, fill=tkinter.NONE, expand=0)
 
+
         if var.get() == 1:
             t = np.arange(1, 1 + int(numFIEntry.get())).astype(dtype=np.str)
+
+            labelData = tuple(t)
+            labelpos = np.arange(len(labelData))
             y1 = np.loadtxt('./origin.csv', delimiter='\n', unpack=True)
-            axes = fig.add_subplot(111)
-            axes.plot(t, y1)
-            axes.set_title('Accuracy per fault injection')
-            # axes.set_xlabel("Index of fault injection")
-            # axes.set_ylabel("Accuracy")
+            plt.bar(labelpos, y1, align='center', alpha=1.0)
+            plt.xticks(labelpos, labelData)
+            plt.ylabel("Accuracy")
+            plt.xlabel("Index of fault injection")
+            plt.tight_layout(pad=2.2, w_pad=5.5, h_pad=5.1)
+            plt.title('Accuracy per fault injection')
+            plt.xticks(rotation=38, horizontalalignment='center')
 
+            for index, datapoints in enumerate(y1):
+                plt.text(x=index, y=datapoints, s=" ", fontdict=dict(fontsize=18), ha='center',
+                         va='bottom')
+            # plt.show()
 
-            # figg.savefig('figure-single')
-            # top = tk.Toplevel(second_frame)
-            # top.destroy()
         else:
             y1 = []
             for i in range(len(lst)-1):
                 tup = lst[i+1]
                 y1.append(tup[1])
             t = np.arange(1, total_rows).astype(dtype=np.str)
-            axes = fig.add_subplot(111)
-            axes.plot(t, y1)
-            axes.set_title('Accuracy per setting')
-            axes.set_xlabel("Index of setting")
-            axes.set_ylabel("Accuracy")
+            labelData = tuple(t)
+            print(labelData)
+            labelpos = np.arange(len(labelData))
 
+            plt.bar(labelpos, y1, align='center', alpha=1.0)
+            plt.xticks(labelpos, labelData)
+            plt.ylabel("Accuracy")
+            plt.xlabel("Index of setting")
+            plt.tight_layout(pad=2.2, w_pad=5.5, h_pad=5.1)
+            plt.title('Accuracy per setting')
+            plt.xticks(rotation=38, horizontalalignment='center')
+
+            for index, datapoints in enumerate(y1):
+                plt.text(x=index, y=datapoints, s="", fontdict=dict(fontsize=18), ha='center', va='bottom')
+
+            # plt.show()
 
 
         # forget data
