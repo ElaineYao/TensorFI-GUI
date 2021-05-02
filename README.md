@@ -125,6 +125,41 @@ Represents the probability that a fault will be injected into that particular op
   
 
 ### 4.5 Part 4 - Results
-- **SDC rates:** SDC is short for Silent Data Corruption. We consider SDC rate as the metric for evaluating the resilience of ML applications. An SDC is a wrong output that deviates from the expected output of the program. SDC rate is the fraction of the injected faults that result in SDCs. For classifier applications, an SDC is any misclassification.
+After the  *Inject* button becomes *Injection Completed!*, results in different forms will be presented
 
-The project is still in progess.
+- **Statistics :** This part shows statistic data in accuracy. 
+
+Example:
+
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Complete%20Multiple.png)
+
+In the above image, since the second colomn, each colomn shows the *mean*, *standard deviation*, *minimum* and *maximum* of the accuracy in the setting of *x-conf.yaml*. Each floating point number retains three decimal places.
+
+- **Figure :** This part draws the (average) accuracy per injection/YAML file setting. Figure varies according to **configMode**.
+
+Example:
+**configMode**=*Single*
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Figure%20Single.png)
+
+X axis represents the index of fault injection and thus its length equals to **number of injections**.
+
+Y axis represents the accuracy in each fault injection.
+
+**configMode**=*Multiple*
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/Figure%20Multiple.png)
+
+X axis *no longer* represents the index of FI *but* represents the index of config YAML file. Its length equals to the number of YAML files.
+
+Y axis represents the *average* accuracy in each YAML file. And *average* value is calculated based on the number of fault injection.
+
+- **Export to CSV :** This part allows the user to get a csv file containing all accuracy data with the specified name.
+
+Example:
+
+![image](https://github.com/ElaineYao/TensorFI-GUI/blob/master/Figures/csv%20config.png)
+
+User can specify the file name in the blank, and after clicking *Export*, he can find a corrosponding csv file in the current path.
+
+
+
+**The project is still in progess.**
