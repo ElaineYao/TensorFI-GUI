@@ -5,7 +5,7 @@ UNIX platform with Tensorflow v1
 You have to install [TensorFI](https://github.com/DependableSystemsLab/TensorFI) first. See **2. Dependencies** and **3. Installation Instructions** in TensorFI homepage.
 ## 3. Download
 
-TODO
+Download the whole project.
 
 ## 4. Usage Guide
 TensorFI-GUI is shown as follows:
@@ -18,8 +18,9 @@ TensorFI-GUI is shown as follows:
 
  *Note:* make sure that the model is restored from the *absolute* path of the checkpoint files.
  
-2. Fill blanks for FI(fault injection) setting and ML program selection. 
-3. Click *Inject* button, the whole FI process begins and statistic data about accuracy will appear when all is done. You can either view these data in figure or export it to a csv file.
+2. Run TensorFI-GUI.py
+3. Fill blanks for FI(fault injection) setting and ML program selection. 
+4. Click *Inject* button, the whole FI process begins and statistic data about accuracy will appear when all is done. You can either view these data in figure or export it to a csv file.
 
 Detailed explanation for each field is as follows:
 
